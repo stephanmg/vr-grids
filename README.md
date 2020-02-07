@@ -1,4 +1,4 @@
-# README 
+# C2M2VR-Grids 
 
 Grids for VR 
 

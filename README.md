@@ -7,3 +7,6 @@ Cylinders with a length of 100 units, with *varying degree of grid resolution*, 
 ## Cells
 Cells with *varying diameters*, scaled by a factor of 1:10, 1:100, 1:1000.
 Currently two cells, CA1 Pyramidal (CA1) and Calretinin (CR).
+
+## Code
+`scale_dend.rb` scales SWC files

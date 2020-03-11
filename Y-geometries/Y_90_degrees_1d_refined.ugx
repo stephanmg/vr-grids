@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<grid name="defGrid">
+	<vertices coords="3">0 -0.66666666666666663 0 0 -0.333333333333333315 0 0 0 0 -0.707106781186547462 0.707106781186547573 0 0.707106781186547573 0.707106781186547462 0 0 -0.5 0 0 -0.166666666666666657 0 -0.353553390593273731 0.353553390593273786 0 0.353553390593273786 0.353553390593273731 0</vertices>
+	<edges>0 5 5 1 1 6 6 2 2 7 7 3 2 8 8 4</edges>
+	<vertex_attachment name="diameter" type="double" passOn="1" global="1">0.2 0.2 0.2 0.1 0.1 0 0 0 0</vertex_attachment>
+	<subset_handler name="defSH">
+		<subset name="soma" color="0.588235 0.588235 1 1" state="393216">
+			<vertices>0</vertices>
+		</subset>
+		<subset name="dend" color="1 0 0 1" state="393216">
+			<vertices>1 2 3 4 5 6 7 8</vertices>
+			<edges>0 1 2 3 4 5 6 7</edges>
+		</subset>
+	</subset_handler>
+	<subset_handler name="markSH">
+		<subset name="crease" color="1 1 1 1" state="0"/>
+		<subset name="fixed" color="1 1 1 1" state="0"/>
+	</subset_handler>
+	<selector name="defSel"/>
+	<projection_handler name="defPH" subset_handler="0">
+		<default type="default">0 0</default>
+	</projection_handler>
+</grid>
+

@@ -25,3 +25,11 @@ Test geoemtries to debug mesh artifacts (Full 2d surface / neuron geometries)
 ## Code
 `scale_dend.rb` scales SWC files but do not scale soma. Alternatively a blow-up factor parameter is introduced in the
 underlying ug4 grid generation algorithm to allow to blow up dendrites (neurites and axons, but not soma).
+
+# Pipeline 
+All points written down here which are not automatized so far will be added to the ug4 grid generation algorithm.
+- (Scale SWC file with *scale_dend.rb*)
+- Refine SWC grid with ug4 (*refine_swc_grid(...)*)
+- Create surfaces meshes from SWC file, and, this writes the new SWC file within the 2d surface
+- Save as OBJ files or UGX files
+- Fix face orientation with ProMesh (Will be incorporated into pipeline)

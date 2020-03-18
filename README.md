@@ -19,6 +19,9 @@ Currently two cells, CA1 Pyramidal (CA1) and Calretinin (CR).
 ## Y-geometries
 Simple Y-branching geometries to debug mesh artifacts.
 
+## Test
+Test geoemtries to debug mesh artifacts (Full 2d surface / neuron geometries)
+
 ## Code
 `scale_dend.rb` scales SWC files but do not scale soma. Alternatively a blow-up factor parameter is introduced in the
 underlying ug4 grid generation algorithm to allow to blow up dendrites (neurites and axons, but not soma).

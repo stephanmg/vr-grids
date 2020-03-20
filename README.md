@@ -4,29 +4,35 @@ Grids for VR simulation and experiments.
 # TODO
 Note that mesh artifacts might still arise in two cases:
 - Grid generation algorithm's render vector and very sharp kinks in geometries (The latter can be manually resolved)
-- Unity seems to have trouble visualizing very thin neurites (blow up geometries work)
+- Unity seems to have trouble visualizing very thin neurites (blow up geometries work) or the thin meshes are defective
 
-## Cylinders
-Cylinders with a length of 100 units, with *varying degree of grid resolution*, radius of cylinder is 1.
+## New cells
+- Current cells which can be used within the Unity project.
 
-## Cells
-Cells with *varying diameters*, scaled by a factor of 1:10, 1:100, 1:1000.
-Currently two cells, CA1 Pyramidal (CA1) and Calretinin (CR).
+### Y-geometries
+- Simple Y-branching geometries
 
-## Grid hierarchy
-1d cell in 2d surface cell with some refinements. 1d refinements are contained within the 2d surface mesh.
+### Full neuron geometries
+- Full neuron geometries with 1d and 2d geometries as well as refinements of the 1d mesh
 
-## Y-geometries
-Simple Y-branching geometries to debug mesh artifacts.
+### Cylinders
+- Cylinders with a length of 100 units, with *varying degree of grid resolution*, radius of cylinder is 1.
 
-## Test
-Test geoemtries to debug mesh artifacts (Full 2d surface / neuron geometries)
+## Old cells
+- A collection of old cells which might be defective in some way and are used to improve grid generation algorithm.
+Some of them might be still generated with the interpolating grid generation algorithm: Cells 1, 2 and 3.
+
+### Grid hierarchy
+- Test 1d cell in 2d surface cell with some refinements. 1d refinements are contained within the 2d surface mesh.
+
+### Test
+- Cells to debug mesh artifacts (Thin dendrites, Twists, Face orientation)
 
 ## Code
-`scale_dend.rb` scales SWC files but do not scale soma. Alternatively a blow-up factor parameter is introduced in the
+- `scale_dend.rb` scales SWC files but do not scale soma. Alternatively a blow-up factor parameter is introduced in the
 underlying ug4 grid generation algorithm to allow to blow up dendrites (neurites and axons, but not soma).
 
-# Pipeline 
+# Grid generation pipeline 
 All points written down here which are not automatized so far will be added to the ug4 grid generation algorithm.
 - (Scale SWC file with *scale_dend.rb*)
 - Refine SWC grid with ug4 (*refine_swc_grid(...)*)

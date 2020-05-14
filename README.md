@@ -1,6 +1,10 @@
 # C2M2VR-Grids 
 Grids for VR simulation and experiments.
 
+## Test
+A temporary folder to put in cells for test, then will be moved to Cells folder 
+if additional quality checks have passed (visual) to the algorithmic checks
+
 ## Cells
 Currently usable cells which should be free from defects
 

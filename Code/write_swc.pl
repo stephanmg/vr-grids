@@ -1,5 +1,11 @@
 #!/usr/bin/env perl
-# writes (x,y,z);d CSV data to SWC file
+#
+#open my $in, "<:encoding(utf8)", "new_geom.swc" or die $!;
+#open my $in, "<:encoding(utf8)", "blubb.swc" or die $!;
+#open my $in, "<:encoding(utf8)", "foo2.swc" or die $!;
+#open my $in, "<:encoding(utf8)", "new_james.swc" or die $!;
+#open my $in, "<:encoding(utf8)", "new_james.swc" or die $!;
+
 
 use Getopt::Long qw(GetOptions);
  

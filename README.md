@@ -27,3 +27,6 @@ used to debug mesh artifacts (Thin dendrites, Twists and False Face Orientation)
 - `scale_dend.rb` scales SWC files but do not scale soma.
 Scaling of dendrites (neurites and axons) is now incorporated in the grid generation algorithm
 - `pipeline.sh` the main routine to create meshes in ug4. The file has to be used with a valid ug4 installation
+- `coarsen.sh` coarsens the 1d geometry
+- `refine_var.sh` refines the 1d geometry and reorders to HINEs type
+- `write_swc.pl` helper script (obsolete now)

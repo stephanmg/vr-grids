@@ -1,4 +1,5 @@
 #!/bin/bash
+## NEW refinement strategy (spline sampling)
 FOLDERNAME=FileUpload10 # was FileUpload10
 CREATE_3D=true
 CREATE_1D=true

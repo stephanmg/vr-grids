@@ -3,6 +3,8 @@
 ## Option 2 same as Option 3 needs also smoothing in the import method test_import_swc_general_var before processing the dendrites....
 ## Option 1 is good for vr usually 
 
+### OLD refinement strategy!
+
 # TODO: make these options, potentially with bash getopt
 FOLDERNAME=FileUpload8 # was FileUpload5
 CREATE_3D=false

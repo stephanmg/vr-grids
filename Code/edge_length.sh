@@ -1,5 +1,4 @@
 #!/bin/bash
-# script used to regularize the 1d meshes with ug4 and copy statistics over to a folder
 
 if [ -z "$1" ]; then
   echo "Usage: $(basename $0) FILENAME"
@@ -11,11 +10,6 @@ FILE=$1
 
 if [ ! -e "$1" -o ! -f "$1" ]; then
   echo "Usage: $(basename $0) FILENAME"
-  exit 2
-fi
-
-if [ ! -d "$FOLDER" ]; then
-  echo "$FOLDER does not exist, make sure the folder is on your filesystem or provide a folder"
   exit 2
 fi
 

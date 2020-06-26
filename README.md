@@ -49,4 +49,4 @@ Scaling of dendrites (neurites and axons) is now incorporated in the grid genera
 - `refine_var.sh` refines the 1d geometry and reorders to HINEs type
 - `write_swc.pl` helper script (Obsolete)
 - `edge length.sh` scripts to provide automatically calcaulated segment length to plotting routines
-` edges.py` matplotlib plotting routines for edge length comparison in mesh regularization
+` `edges.py` matplotlib plotting routines for edge length comparison in mesh regularization

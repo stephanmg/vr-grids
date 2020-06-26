@@ -1,6 +1,8 @@
 # C2M2VR-Grids 
 Grids for VR simulation and experiments.
 
+Grids are stored [here](https://temple.app.box.com/folder/116445648846) and [there](https://temple.app.box.com/folder/116203752704)
+
 ## Test
 A temporary folder to put in cells for test, then will be moved to Cells folder 
 if additional quality checks have passed (visual) to the algorithmic checks

@@ -5,12 +5,13 @@
 ## The best way to achieve this is, to chose the desired edge length well above
 ## the minimum distance of fragments (branching point to branching point)
 
-SCRIPT_3D=test_import_swc_general_var_for_vr_var 
+SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var 
+SCRIPT_3D=test_import_swc_general_var
 
 usage() { 
   echo "Usage: $(basename $0) -i <INPUT_PATTERN> -o <OUTPUT_FOLDER> -s1 <SEGMENT_LENGTH_1D>"
   echo -e "\t\t\t [-s2 <SEGMENT_LENGTH_3D>] [-c1 <CREATE_1D>] [-c3 <CREATE_3D>]"
-  echo -e "\t\t\t [-m1 <METHOD_1D>] [-m2 <METHOD_3D>] [-a <REMOVE_ATTACHMENTS>]"
+  echo -e "\t\t\t [-m1 <METHOD_1D>] [-m2 <METHOD_3D>] [-a <REMOVE_ATTACHMENTS>] [-v <FOR_VR>]"
   echo -e "\t\t\t [-p <PRE_SMOOTH>] [-r <REFINEMENT>] [-f <FORCE_SPLIT_EDGE>] [-b <INFLATE_MESH>]" 1>&2; 
   exit 1; 
 }
@@ -29,7 +30,7 @@ REFINE=true # refine the mesh by powers of 2: 1, 2,4,8,16,32,64,128
 FORCE=true # split edge if only one edge between branching points?
 INFLATE=true # inflate the mesh with factors 1,2,3,4,5
 
-while getopts ":i:l:m1:m2:s1:s2:a:p:r:f:o:c1:c3:b" o; do
+while getopts ":i:l:m1:m2:s1:s2:a:p:r:f:o:c1:c3:b:v:" o; do
     case "${o}" in
         b)
             INFLATE=${OPTARG}
@@ -73,6 +74,9 @@ while getopts ":i:l:m1:m2:s1:s2:a:p:r:f:o:c1:c3:b" o; do
         a)
             REMOVE_ATTTACHMENTS=${OPTARG}
              ;;
+        v) 
+            VR=${OPTARG}
+            ;;
         h)
            usage
            ;;
@@ -142,6 +146,10 @@ for file in $FILE_PATTERN; do
           ../bin/ugshell -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", \"$ref\", ${FORCE})" > log_$ref.log 
         fi
          cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${numRef}.swc" 
+          # copy coarse grid
+         if [ "${numRef}" -eq 0 ];then
+            cp new_strategy.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d.ugx"
+         fi
         numRef=$(($numRef+1))
       done
       check_exit $?
@@ -151,11 +159,15 @@ for file in $FILE_PATTERN; do
   # Create 3D
   if [ "${CREATE_3D}" = "true" ]; then
     echo "Step 3/3 Creating 2D grids and inflations..."
-    # for inflation in {1,2,3,4,5}; do
-    for inflation in {1,2}; do
-      if [ "${inflate}" = "true" ] || [ "${inflation}" = 1 ]; then
+    for inflation in {1,2,3,4,5}; do
+      if [ "${INFLATE}" = "true" ] || [ "${inflation}" -eq 1 ]; then
         echo -n "Inflating mesh with factor $inflation..."
-        ../bin/ugshell -call "${SCRIPT_3D}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")" 
+        if [ "${VR}" = "true" ]; then
+          ../bin/ugshell -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")" 
+        else
+          ../bin/ugshell -call "${SCRIPT_3D}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, false, false, \"$METHOD_3D\", \"$segLength3D\")" 
+        fi
+      
         check_exit $?
         cp after_selecting_boundary_elements_tris.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x$inflation.ugx"
         cp after_selecting_boundary_elements.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x$inflation.ugx"

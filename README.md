@@ -1,50 +1,60 @@
 # C2M2VR-Grids 
 Grids for VR simulation and experiments.
 
-<strong>Attention:</strong> Temporarily grids are stored [here](https://temple.app.box.com/folder/116445648846) and [there](https://temple.app.box.com/folder/116203752704). Repository structure will be cleaned up and obsolete folders and so forth will be removed during the next commit, also scripts which are deprecated are removed then.
+<strong>Attention:</strong> Temporarily grids are stored [here](https://temple.app.box.com/folder/116445648846) and [there](https://temple.app.box.com/folder/116203752704).
 
 ## HOWTO generate grids
-Using the provided `pipeline2.new.sh` script one can take a SWC file from the *NeuroMorpho* database and call it by:
+Using the provided `pipeline_vr.sh` script one can take a SWC file from the *NeuroMorpho* database and call it by:
 
-`./pipeline2new.sh -i 37-4a.original.swc -o NewCells/ -s1 "-1"  -s2 -1 -c1 true -c3 true -m1 min -m2 identity -a true -p true -r true -f false -b false`
+`./pipeline_vr.sh -i 37-4a.original.swc -o NewCells/ -s1 "-1"  -s2 -1 -c1 true -c3 true -m1 min -m2 identity -a true -p true -r true -f false -b false -v true`
 
-This will output the 1d regularization, 1d refinements, blown up meshes in HINES format with and without attachment data to the provided folder NewCells. The regularization will be done with minimum edge length between branching points.
+This will output the 1d regularization, 1d refinements, blown up meshes in HINES format with and without attachment data to the provided folder NewCells. 
+The regularization will be done with minimum edge length between branching points unless the user specifies a minimum edge length themself.
 
 Usually it suffices to keep the default parameters (Which are shown above explicitly) and invoke the following to achieve the same as above:
 
-`./pipeline2new.sh -i 37-4a.CNG_original.swc -o NewCells/ -s1 -1`
+`./pipeline_vr.sh -i 37-4a.CNG_original.swc -o NewCells/ -s1 -1`
 
 ### Usage
-`pipeline2new.sh -i <INPUT_PATTERN> -o <OUTPUT_FOLDER> -s1 <SEGMENT_LENGTH_1D>
+`pipeline_vr.sh -i <INPUT_PATTERN> -o <OUTPUT_FOLDER> -s1 <SEGMENT_LENGTH_1D>
 			 [-s2 <SEGMENT_LENGTH_3D>] [-c1 <CREATE_1D>] [-c3 <CREATE_3D>]
-			 [-m1 <METHOD_1D>] [-m2 <METHOD_3D>] [-a <REMOVE_ATTACHMENTS>]
+			 [-m1 <METHOD_1D>] [-m2 <METHOD_3D>] [-a <REMOVE_ATTACHMENTS>] [-v <FOR_VR>]
 			 [-p <PRE_SMOOTH>] [-r <REFINEMENT>] [-f <FORCE_SPLIT_EDGE>] [-b <INFLATE_MESH>]`
 
 ## Test
-A temporary folder to put in cells for checking if they fullfill all prerequisites on the mesh quality. If the test cells pass the algorithmic quality checks and the visual quality checks in ProMesh and Unity as well, then these will be moved to the main virtual-reality project repository StreamingAssets folder found [over here](https://github.com/c2m2/virtual-reality/tree/development/Assets/StreamingAssets/NeuronalDynamics)
+A temporary folder to put in cells for checking if they fullfill all prerequisites on the mesh quality.
+ If the test cells pass the algorithmic quality checks and the visual quality checks in ProMesh and Unity as well, 
+then these will be moved to the main virtual-reality project repository StreamingAssets folder found
+ [over here](https://github.com/c2m2/virtual-reality/tree/development/Assets/StreamingAssets/NeuronalDynamics)
+Defective cells will be stored in the folder *Defective Cells* as a backup.
 
-## Cells
-Currently usable cells (no blowups and no refinements) which should be free from defects (These cells are replicated in the main VR project repository [here](https://github.com/c2m2/virtual-reality/tree/development/Assets/StreamingAssets/NeuronalDynamics)
+## Cells 
+Currently usable cells (no blowups and no refinements) which should be free from defects
+ (These cells are replicated in the main VR project repository 
+[here](https://github.com/c2m2/virtual-reality/tree/development/Assets/StreamingAssets/NeuronalDynamics)
 
-## Full cell geometries
-The same as *Cells* above but with blowups and refinements.
+## Full Cells (with Blowups and Refinements)
+The same as *Cells* above but with blowups and refinements found in *Full Cells*.
 
 ## Cylinders 
 Cylinders with a length of 100 units, with *varying degree of grid resolution*, radius of cylinder is 1.
 
-### Y-geometries (Obsolete)
+### Y-geometries
 Two way branches generated from SWC files.
 
-## Deprecated (Obsolete)
+## Defective cells
 A collection of previously used cells, which suffer from grid artifacts and other defects. 1d grid hierarchies
 contained (Regularly refined 1d grids) and the corresponding 2d surface meshes. Test folder includes grids
 used to debug mesh artifacts (Thin dendrites, Twists and False Face Orientation)
 
 ## Code
-- `pipeline2new.sh` creates 1d refined meshes in HINES and 2d blown up meshes with spline subsampling (Will be renamed soon)
-- `scale_dend.rb` scales SWC files but do not scale soma (Obsolete)
-Scaling of dendrites (neurites and axons) is now incorporated in the grid generation algorithm
-- `pipeline.sh` the main routine to create meshes in ug4. The file has to be used with a valid ug4 installation (Obsolete)
-- `coarsen.sh` coarsens the 1d geometry
-- `refine_var.sh` refines the 1d geometry and reorders to HINEs type
-- `write_swc.pl` helper script (Obsolete)
+- `pipeline_vr.sh`: The main grid generation pipeline. Generates a hierarchy of 1D
+ and 2D surface meshes and inflated 2D surface meshes. HINES ordering of the graph
+is ensured. Refinements are generated by sub-sampling the splines defined on the 
+points of the original 1D SWC geometry in prescribed arclength by the user or as
+the minimum distance between branching points leading to regularized or quasi 
+uniform edge length distribution.
+- `coarsen.sh`: Grid coarsening based on the 1D SWC mesh without using splines
+- `sparse.py`: Matplotlib script to visualize sparsity pattern of 1D graphs
+- `edges.py`: Creates plots of edge length statistics (boxplots and histograms)
+of the original and regularized 1D meshes.

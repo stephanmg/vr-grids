@@ -4,6 +4,11 @@ Grids for VR simulation and experiments.
 <strong>Attention:</strong> Temporarily grids are stored [here](https://temple.app.box.com/folder/116445648846) and [there](https://temple.app.box.com/folder/116203752704).
 
 ## HOWTO generate grids
+
+### Prerequisites
+Install *ug4* from [here](https://github.com/ug4/ughub) with the plugin *neuro_collection* enabled.
+
+### Usage
 Using the provided `pipeline_vr.sh` script one can take a SWC file from the *NeuroMorpho* database and call it by:
 
 `./pipeline_vr.sh -i 37-4a.original.swc -o NewCells/ -s1 "-1"  -s2 -1 -c1 true -c3 true -m1 min -m2 identity -a true -p true -r true -f false -b false -v true`

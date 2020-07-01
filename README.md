@@ -1,5 +1,5 @@
 # C2M2VR-Grids 
-Tools and grid generation scripts for creating VR-ready Unity meshes from neuron morphologies stored in SWC format in a  publicly available database of neuronal morphologies at [NeuroMorpho](http://neuromorpho.org)
+Tools and grid generation scripts for creating VR-ready Unity meshes from neuron morphologies stored in SWC format in a  publicly available database of neuronal morphologies at [NeuroMorpho](http://neuromorpho.org).
 
 <strong>Attention:</strong> Temporarily grids are stored [here](https://temple.app.box.com/folder/116445648846) (Comparison of additional points in between branching points or not) and [there](https://temple.app.box.com/folder/116203752704) (Full cell geometries with blown up meshes, HINES ordering and 1d grid hierarchies with spline (sub)-sampling)
 

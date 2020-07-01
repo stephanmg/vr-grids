@@ -63,3 +63,4 @@ uniform edge length distribution.
 - `sparse.py`: Matplotlib script to visualize sparsity pattern of 1D graphs
 - `edges.py`: Creates plots of edge length statistics (boxplots and histograms)
 of the original and regularized 1D meshes.
+- `remove_attachments.sh`: Removes attachments if they might not be readable by ProMesh

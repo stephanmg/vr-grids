@@ -17,13 +17,13 @@ usage() {
 }
 
 FILE_PATTERN= # input files
-FOLDERNAME= # output folder
+FOLDERNAME=Foobar # output folder
 segLength1D="-1" # desired seg length in 1d structure
 segLength3D="-1" # desired seg length in 3d st ructure
 CREATE_3D=true # should 3d grids be generated
 CREATE_1D=true # should 1d grids be generated 
 METHOD_3D="identity" # method identity usually for VR use case
-METHOD_1D="min" # either user or mimum for VR use case
+METHOD_1D="min" # either user or mimimum (-1) for VR use case
 REMOVE_ATTACHMENTS=true # remove attachments for ProMesh versions incompatible
 PRESMOOTH=true # pre smooth the whole structure 
 REFINE=true # refine the mesh by powers of 2: 1, 2,4,8,16,32,64,128
@@ -111,7 +111,7 @@ for file in $FILE_PATTERN; do
     # Presmoothing
     if [ "${PRESMOOTH}" = "true" ]; then
        echo -n "Coarsening 1d grid..."
-       ./coarsen.sh "$file"  &> /dev/null
+       ./coarsen.sh "$file"  
        check_exit $?
     else
       cp "$file" "${FILENAME}_collapsed_split_and_smoothed.swc"
@@ -119,11 +119,11 @@ for file in $FILE_PATTERN; do
 
     # Coarse grid generation (Re-sampling the spline)
     echo -n "Step 1/3: Creating 1D coarse grid..."
-    mkdir "${FOLDERNAME}/${FILENAME}" &> /dev/null
+    mkdir -p "${FOLDERNAME}/${FILENAME}" 
     if [ "${METHOD_1D}" = "min" ]; then
-       ../bin/ugshell -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", -1, \"min\", 0, ${FORCE})" > log
+       ../bin/ugshell -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", -1, \"min\", 0, ${FORCE})" 
     else
-       ../bin/ugshell -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE})" > log
+       ../bin/ugshell -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE})" 
     fi
     cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d.swc"
     cp new_strategy_statistics.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_NEW.csv"
@@ -147,7 +147,7 @@ for file in $FILE_PATTERN; do
         fi
          cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${numRef}.swc" 
           # copy coarse grid
-         if [ "${numRef}" -eq 0 ];then
+         if [ "${numRef}" -eq 0 ]; then
             cp new_strategy.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d.ugx"
          fi
         numRef=$(($numRef+1))

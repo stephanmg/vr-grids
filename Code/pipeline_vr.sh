@@ -18,16 +18,16 @@ usage() {
 
 FILE_PATTERN= # input files
 FOLDERNAME=Foobar # output folder
-segLength1D="-1" # desired seg length in 1d structure
+segLength1D="3" # desired seg length in 1d structure
 segLength3D="-1" # desired seg length in 3d st ructure
 CREATE_3D=true # should 3d grids be generated
 CREATE_1D=true # should 1d grids be generated 
 METHOD_3D="identity" # method identity usually for VR use case
-METHOD_1D="min" # either user or mimimum (-1) for VR use case
+METHOD_1D="user" # either user or mimimum (-1) for VR use case
 REMOVE_ATTACHMENTS=true # remove attachments for ProMesh versions incompatible
 PRESMOOTH=true # pre smooth the whole structure 
 REFINE=true # refine the mesh by powers of 2: 1, 2,4,8,16,32,64,128
-FORCE=true # split edge if only one edge between branching points?
+FORCE=false # split edge if only one edge between branching points?
 INFLATE=true # inflate the mesh with factors 1,2,3,4,5
 
 while getopts ":i:l:m1:m2:s1:s2:a:p:r:f:o:c1:c3:b:v:" o; do
@@ -98,6 +98,7 @@ function check_exit() {
       echo " failed!"
     fi
 }
+
 
 # process each file
 for file in $FILE_PATTERN; do

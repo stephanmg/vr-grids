@@ -30,7 +30,7 @@ usage() {
 }
 
 FILE_PATTERN= # input files
-FOLDERNAME=Foobar # output folder, some name
+FOLDERNAME= # output folder, some name
 segLength1D="3" # desired seg length in 1d structure
 segLength3D="-1" # desired seg length in 3d st ructure
 CREATE_3D=true # should 3d grids be generated
@@ -108,6 +108,7 @@ shift $((OPTIND-1))
 
 ## check for empty file input pattern and empty folder name
 if [ -z "${FILE_PATTERN}" ] || [ -z "${FOLDERNAME}" ]; then
+    echo "File input pattern or output folder empty!"
     usage
 ## no seglength specified then user needs to use auto or min explicitly
 elif [ -z "${segLength1D}" ] && [ "${METHOD_1D}" != "auto"]; then

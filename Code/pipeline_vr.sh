@@ -7,17 +7,30 @@
 
 SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var 
 SCRIPT_3D=test_import_swc_general_var
+BINARY=../bin/ugshell # or ugshell if in your PATH (as it should be typically)
 
+# be kind to the user and show invocation options
+echo -n "Mesh generation invoked via: "
+tput bold 
+echo -n "$(basename $0) $@"
+tput sgr0 
+echo -n " (See if options suitable via "
+tput bold
+echo -n "$(basename $0) --help [-h]"
+tput sgr0
+echo ")"
+
+# usage
 usage() { 
   echo "Usage: $(basename $0) -i <INPUT_PATTERN> -o <OUTPUT_FOLDER> -s1 <SEGMENT_LENGTH_1D>"
-  echo -e "\t\t\t [-s2 <SEGMENT_LENGTH_3D>] [-c1 <CREATE_1D>] [-c3 <CREATE_3D>]"
+  echo -e "\t\t\t [-s2 <SEGMENT_LENGTH_3D>] [-c1 <CREATE_1D>] [-c3 <CREATE_3D>] [-d <DEBUG>] [-q <QUIET>]"
   echo -e "\t\t\t [-m1 <METHOD_1D>] [-m2 <METHOD_3D>] [-a <REMOVE_ATTACHMENTS>] [-v <FOR_VR>]"
   echo -e "\t\t\t [-p <PRE_SMOOTH>] [-r <REFINEMENT>] [-f <FORCE_SPLIT_EDGE>] [-b <INFLATE_MESH>]" 1>&2; 
   exit 1; 
 }
 
 FILE_PATTERN= # input files
-FOLDERNAME=Foobar # output folder
+FOLDERNAME=Foobar # output folder, some name
 segLength1D="3" # desired seg length in 1d structure
 segLength3D="-1" # desired seg length in 3d st ructure
 CREATE_3D=true # should 3d grids be generated
@@ -29,8 +42,11 @@ PRESMOOTH=true # pre smooth the whole structure
 REFINE=true # refine the mesh by powers of 2: 1, 2,4,8,16,32,64,128
 FORCE=false # split edge if only one edge between branching points?
 INFLATE=true # inflate the mesh with factors 1,2,3,4,5
+VR=true # for vr default
+QUIET=false # only warnings are outputted if specified
 
-while getopts ":i:l:m1:m2:s1:s2:a:p:r:f:o:c1:c3:b:v:" o; do
+# parse CLI options
+while getopts ":i:l:m1:m2:s1:s2:a:p:r:f:o:c1:c3:b:v:d:q:" o; do
     case "${o}" in
         b)
             INFLATE=${OPTARG}
@@ -72,22 +88,40 @@ while getopts ":i:l:m1:m2:s1:s2:a:p:r:f:o:c1:c3:b:v:" o; do
             METHOD_1D=${OPTARG}
             ;;
         a)
-            REMOVE_ATTTACHMENTS=${OPTARG}
+            REMOVE_ATTACHMENTS=${OPTARG}
              ;;
         v) 
             VR=${OPTARG}
             ;;
-        h)
+        d)
+            DEBUG=${OPTARG}
+            ;;
+        q)
+           QUIET=${OPTARG}
+           ;;
+        h)  
            usage
            ;;
     esac
 done
 shift $((OPTIND-1))
 
+## check for empty file input pattern and empty folder name
 if [ -z "${FILE_PATTERN}" ] || [ -z "${FOLDERNAME}" ]; then
     usage
-elif [ -z "${segLength1D}" ]; then
+## no seglength specified then user needs to use auto or min explicitly
+elif [ -z "${segLength1D}" ] && [ "${METHOD_1D}" != "auto"]; then
     usage
+fi
+
+# if debugging is desired
+if [ -z "${DEBUG}" ] && [ -z "${QUIET}" ]; then
+    exec 3>&1 &>/dev/null
+fi
+
+# if quiet is desired (only warnings)
+if [ ! -z "${QUIET}" ]; then
+    exec 3>&2
 fi
 
 # function to check exit status
@@ -99,40 +133,37 @@ function check_exit() {
     fi
 }
 
-
-# process each file
+### process each file
 for file in $FILE_PATTERN; do
-#for file in 44-4.CNG_original.swc; do
-#for file in *_original.swc; do
-#for file in 0-2a_original.swc; do
   FILENAME=${file%*.swc}
   # Create 1D
-  echo "Processing file ${FILENAME} now..."
+  echo "Processing file ${FILENAME} now..." > 3
   if [ "${CREATE_1D}" = "true" ]; then
     # Presmoothing
     if [ "${PRESMOOTH}" = "true" ]; then
-       echo -n "Coarsening 1d grid..."
-       ./coarsen.sh "$file"  
-       check_exit $?
+       echo -n "Coarsening 1d grid..." > 3
+       ./coarsen.sh "$file" > 3
+       check_exit $? > 3
     else
       cp "$file" "${FILENAME}_collapsed_split_and_smoothed.swc"
     fi
 
     # Coarse grid generation (Re-sampling the spline)
-    echo -n "Step 1/3: Creating 1D coarse grid..."
+    echo -n "Step 1/3: Creating 1D coarse grid..." > 3
     mkdir -p "${FOLDERNAME}/${FILENAME}" 
     if [ "${METHOD_1D}" = "min" ]; then
-       ../bin/ugshell -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", -1, \"min\", 0, ${FORCE})" 
+       $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", -1, \"min\", 0, ${FORCE})" > 3
     else
-       ../bin/ugshell -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE})" 
+       $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE})" > 3
     fi
+
     cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d.swc"
     cp new_strategy_statistics.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_NEW.csv"
     cp statistics_edges_original.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_OLD.csv"
-    check_exit $?
+    check_exit $? > 3
     
     # Refining
-    echo -n "Step 2/3: Creating refinements..."
+    echo -n "Step 2/3: Creating refinements..." > 3
     numRef=0
     if [ "${METHOD_1D}" = "min" ]; then
       MIN=$(bc -l <<< "$(grep -ir "min seg length" log | cut -d ":" -f 3 | tr -d ' ')")
@@ -142,9 +173,9 @@ for file in $FILE_PATTERN; do
      for ref in {1,2,4,8,16}; do
         if [ "${METHOD_1D}" = "min" ]; then
         segLength1D=min
-          ../bin/ugshell -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$MIN\", \"user\", \"$ref\", ${FORCE})" > log_$ref.log
+          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$MIN\", \"user\", \"$ref\", ${FORCE})" > log_$ref.log
         else
-          ../bin/ugshell -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", \"$ref\", ${FORCE})" > log_$ref.log 
+          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", \"$ref\", ${FORCE})" > log_$ref.log 
         fi
          cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${numRef}.swc" 
           # copy coarse grid
@@ -153,27 +184,27 @@ for file in $FILE_PATTERN; do
          fi
         numRef=$(($numRef+1))
       done
-      check_exit $?
+      check_exit $? > 3
     fi
   fi
    
   # Create 3D
   if [ "${CREATE_3D}" = "true" ]; then
-    echo "Step 3/3 Creating 2D grids and inflations..."
+    echo "Step 3/3 Creating 2D grids and inflations..." > 3
     for inflation in {1,2,3,4,5}; do
       if [ "${INFLATE}" = "true" ] || [ "${inflation}" -eq 1 ]; then
-        echo -n "Inflating mesh with factor $inflation..."
+        echo -n "Inflating mesh with factor $inflation..." > 3
         if [ "${VR}" = "true" ]; then
-          ../bin/ugshell -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")" 
+          $BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")" > 3
         else
-          ../bin/ugshell -call "${SCRIPT_3D}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, false, false, \"$METHOD_3D\", \"$segLength3D\")" 
+          $BINARY -call "${SCRIPT_3D}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, false, false, \"$METHOD_3D\", \"$segLength3D\")" > 3
         fi
       
-        check_exit $?
-        cp after_selecting_boundary_elements_tris.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x$inflation.ugx"
-   #     cp after_selecting_boundary_elements.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x$inflation.ugx"
+        check_exit $? > 3
+        cp after_selecting_boundary_elements_tris.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x$inflation.ugx"
+        cp after_selecting_boundary_elements.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x$inflation.ugx"
         if [ "${REMOVE_ATTACHMENTS}" = "true" ]; then
- #         sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x$inflation.ugx" > "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x${inflation}_wo_attachments.ugx"
+          sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x$inflation.ugx" > "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x${inflation}_wo_attachments.ugx"
           sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x$inflation.ugx" > "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x${inflation}_wo_attachments.ugx"
         fi
       fi

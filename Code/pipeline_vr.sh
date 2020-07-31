@@ -1,9 +1,7 @@
 #!/bin/bash
-### This version should be used to create 1d refined meshes, 3d meshes and blowups
-## This pipeline is to conduct a comparison for 1d/3d geometries where an edge
-## might be split or not depending on the FORCE_SPLIT_EDGE parameter (true/false)
-## The best way to achieve this is, to chose the desired edge length well above
-## the minimum distance of fragments (branching point to branching point)
+### This version should be used to create 1d refined meshes, 3d meshes and a 
+### number of inflations and refinements for the 3d respectively 1d meshes (VR).
+### It can also be used by specifiying VR=false for all other use-cases.
 
 SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var 
 SCRIPT_3D=test_import_swc_general_var

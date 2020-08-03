@@ -7,6 +7,7 @@ Tools and grid generation scripts for creating VR-ready Unity meshes from neuron
 
 ### Prerequisites
 Follow installation instructions for *ug4* from [here](https://github.com/ug4/ughub) with the plugin *neuro_collection* installed and enabled.
+For Windows installations a working WSL or Cygwin environment is required to run the VR pipeline script (Sh/Bash).
 
 ### Usage
 Using the provided `pipeline_vr.sh` script (Bash/Sh compatible script) one can input an SWC file from the *NeuroMorpho* database and call it by:
@@ -17,11 +18,13 @@ This will output the 1d regularization, 1d refinements, blown up meshes in HINES
 
 Usually it suffices to keep the default parameters (Which are shown above explicitly) and invoke the following to achieve the same as above:
 
-`./pipeline_vr.sh -i 37-4a.CNG_original.swc -o NewCells/ -s1 -1`
+`./pipeline2new.sh -i 44-4.CNG_original.swc -o NewCells/`
+
+Note, that the option `-a false` removes the attachments for visualization in ProMesh.
 
 ### Usage
 `pipeline_vr.sh -i <INPUT_PATTERN> -o <OUTPUT_FOLDER> -s1 <SEGMENT_LENGTH_1D>
-			 [-s2 <SEGMENT_LENGTH_3D>] [-c1 <CREATE_1D>] [-c3 <CREATE_3D>]
+			 [-s2 <SEGMENT_LENGTH_3D>] [-c1 <CREATE_1D>] [-c3 <CREATE_3D>] [-d <DEBUG>] [-q <QUIET>]
 			 [-m1 <METHOD_1D>] [-m2 <METHOD_3D>] [-a <REMOVE_ATTACHMENTS>] [-v <FOR_VR>]
 			 [-p <PRE_SMOOTH>] [-r <REFINEMENT>] [-f <FORCE_SPLIT_EDGE>] [-b <INFLATE_MESH>]`
 

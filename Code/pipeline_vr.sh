@@ -132,6 +132,7 @@ function check_exit() {
       echo " successful."
     else
       echo " failed!"
+      exit $(($2+1))
     fi
 }
 
@@ -145,7 +146,7 @@ for file in $FILE_PATTERN; do
     if [ "${PRESMOOTH}" = "true" ]; then
        echo -n "Coarsening 1d grid..." >&3
        ./coarsen.sh "$file" &> /dev/null
-       check_exit $? >&3
+       check_exit $? 0 >&3
     else
       cp "$file" "${FILENAME}_collapsed_split_and_smoothed.swc"
     fi
@@ -162,7 +163,7 @@ for file in $FILE_PATTERN; do
     cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d.swc"
     cp new_strategy_statistics.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_NEW.csv"
     cp statistics_edges_original.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_OLD.csv"
-    check_exit $? >&3
+    check_exit $? 1 >&3
     
     # Refining
     echo -n "Step 2/3: Creating refinements..." >&3
@@ -186,7 +187,7 @@ for file in $FILE_PATTERN; do
          fi
         numRef=$(($numRef+1))
       done
-      check_exit $? >&3
+      check_exit $? 2 >&3
     fi
   fi
    
@@ -202,7 +203,7 @@ for file in $FILE_PATTERN; do
           $BINARY -call "${SCRIPT_3D}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, false, false, \"$METHOD_3D\", \"$segLength3D\")" &> /dev/null
         fi
       
-        check_exit $? >&3
+        check_exit $? 3 >&3
         cp after_selecting_boundary_elements_tris.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x$inflation.ugx"
         cp after_selecting_boundary_elements.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x$inflation.ugx"
         if [ "${REMOVE_ATTACHMENTS}" = "true" ]; then

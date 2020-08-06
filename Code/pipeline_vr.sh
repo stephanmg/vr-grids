@@ -31,7 +31,7 @@ usage() {
 
 FILE_PATTERN= # input files
 FOLDERNAME= # output folder, some name
-segLength1D="3" # desired seg length in 1d structure
+segLength1D="8" # desired seg length in 1d structure
 segLength3D="-1" # desired seg length in 3d st ructure
 CREATE_3D=true # should 3d grids be generated
 CREATE_1D=true # should 1d grids be generated 
@@ -118,7 +118,7 @@ fi
 
 # if debugging is desired
 if [ "${DEBUG}" = "false" ]; then
-    exec 3>&1 &>/dev/null
+   exec 3>&1 &>/dev/null
 fi
 
 # if quiet is desired (only warnings)
@@ -132,7 +132,6 @@ function check_exit() {
       echo " successful."
     else
       echo " failed!"
-      exit $(($2+1))
     fi
 }
 
@@ -146,7 +145,7 @@ for file in $FILE_PATTERN; do
     if [ "${PRESMOOTH}" = "true" ]; then
        echo -n "Coarsening 1d grid..." >&3
        ./coarsen.sh "$file" &> /dev/null
-       check_exit $? 0 >&3
+       check_exit $? >&3
     else
       cp "$file" "${FILENAME}_collapsed_split_and_smoothed.swc"
     fi
@@ -155,15 +154,15 @@ for file in $FILE_PATTERN; do
     echo -n "Step 1/3: Creating 1D coarse grid..." >&3
     mkdir -p "${FOLDERNAME}/${FILENAME}" 
     if [ "${METHOD_1D}" = "min" ]; then
-       $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", -1, \"min\", 0, ${FORCE})" &> /dev/null
+       $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", -1, \"min\", 0, ${FORCE}, true)" 
     else
-       $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true)" &> /dev/null
+       $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true)" 
     fi
 
     cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d.swc"
     cp new_strategy_statistics.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_NEW.csv"
     cp statistics_edges_original.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_OLD.csv"
-    check_exit $? 1 >&3
+    check_exit $? >&3
     
     # Refining
     echo -n "Step 2/3: Creating refinements..." >&3
@@ -187,7 +186,7 @@ for file in $FILE_PATTERN; do
          fi
         numRef=$(($numRef+1))
       done
-      check_exit $? 2 >&3
+      check_exit $? >&3
     fi
   fi
    
@@ -198,12 +197,12 @@ for file in $FILE_PATTERN; do
       if [ "${INFLATE}" = "true" ] || [ "${inflation}" -eq 1 ]; then
         echo -n "Inflating mesh with factor $inflation..." >&3
         if [ "${VR}" = "true" ]; then
-          $BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")" &> /dev/null
+          $BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")" 
         else
           $BINARY -call "${SCRIPT_3D}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, false, false, \"$METHOD_3D\", \"$segLength3D\")" &> /dev/null
         fi
       
-        check_exit $? 3 >&3
+        check_exit $? >&3
         cp after_selecting_boundary_elements_tris.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x$inflation.ugx"
         cp after_selecting_boundary_elements.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x$inflation.ugx"
         if [ "${REMOVE_ATTACHMENTS}" = "true" ]; then
@@ -213,4 +212,26 @@ for file in $FILE_PATTERN; do
       fi
     done
   fi
+
+# TODO package into .vrn file
+cat << EOF
+{
+    "geometry" : {
+       "1d" : {
+         "files" : [
+           { "x0" : "${FILENAME}_segLength=${segLength1D}_1d.ugx", "description" : "no refinement" }
+         ]
+        }
+
+     "2d": {
+        "files" : [
+            { "x1": ${FILENAME}_segLength=${segLength1D}_3d_x1.ugx, "description": "inflation factor 1" },
+            { "x2": ${FILENAME}_segLength=${segLength1D}_3d_x2.ugx, "description": "inflation factor 2" },
+            { "x3": ${FILENAME}_segLength=${segLength1D}_3d_x3.ugx, "description": "inflation factor 3" }
+        ]
+        }
+    }
+}
+EOF
+
 done

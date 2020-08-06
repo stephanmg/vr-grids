@@ -9,6 +9,9 @@ Tools and grid generation scripts for creating VR-ready Unity meshes from neuron
 Follow installation instructions for *ug4* from [here](https://github.com/ug4/ughub) with the plugin *neuro_collection* installed and enabled.
 For Windows installations a working WSL or Cygwin environment is required to run the VR pipeline script (Sh/Bash).
 
+### Database and cell requirements
+Cells will be packaged in a *.vrn* file if passes all automatic geometry checks. Cells from *NeuroMorpho.org* need to be acyclic, otherwise expect errors during grid generation. Inflated geometries might look "clunky" at branching points, depending on the inflation factor and the success of branching point optimization. The user needs to decide if it is allowed to have some "clunky" branching points or not any.
+
 ### Usage
 Using the provided `pipeline_vr.sh` script (Bash/Sh compatible script) one can input an SWC file from the *NeuroMorpho* database and call it by:
 

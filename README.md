@@ -21,7 +21,7 @@ This will output the 1d regularization, 1d refinements, blown up meshes in HINES
 
 Usually it suffices to keep the default parameters (Which are shown above explicitly) and invoke the following to achieve the same as above:
 
-`./pipeline2new.sh -i 44-4.CNG_original.swc -o NewCells/`
+`./pipeline_vr.sh -i 44-4.CNG_original.swc -o NewCells/`
 
 Note, that the option `-a false` removes the attachments for visualization in ProMesh.
 

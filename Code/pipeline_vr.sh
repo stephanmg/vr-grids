@@ -22,7 +22,7 @@ echo ")"
 
 # usage
 usage() { 
-  echo "Usage: $(basename $0) -i <INPUT_PATTERN> -o <OUTPUT_FOLDER> -s1 <SEGMENT_LENGTH_1D>"
+  echo "Usage: $(basename $0) -i <INPUT_PATTERN> -o <OUTPUT_FOLDER> -s1 <SEGMENT_LENGTH_1D> [-c <BUNDLE>]"
   echo -e "\t\t\t [-s2 <SEGMENT_LENGTH_3D>] [-c1 <CREATE_1D>] [-c3 <CREATE_3D>] [-d <DEBUG>] [-q <QUIET>]"
   echo -e "\t\t\t [-m1 <METHOD_1D>] [-m2 <METHOD_3D>] [-a <REMOVE_ATTACHMENTS>] [-v <FOR_VR>]"
   echo -e "\t\t\t [-p <PRE_SMOOTH>] [-r <REFINEMENT>] [-f <FORCE_SPLIT_EDGE>] [-b <INFLATE_MESH>]" 1>&2; 
@@ -45,10 +45,14 @@ INFLATE=true # inflate the mesh with factors 1,2,3,4,5
 VR=true # for vr default
 QUIET=false # only warnings are outputted if specified
 DEBUG=true # debug 
+BUNDLE_ONLY=false # bundle only, no geometries generated
 
 # parse CLI options
-while getopts ":i:l:m1:m2:s1:s2:a:p:r:f:o:c1:c3:b:v:d:q:" o; do
+while getopts ":i:l:m1:m2:s1:s2:a:p:r:f:o:c1:c3:b:v:d:q:c:" o; do
     case "${o}" in
+        c)
+            BUNDLE_ONLY=${OPTARG}
+            ;;
         b)
             INFLATE=${OPTARG}
             ;;
@@ -135,103 +139,114 @@ function check_exit() {
     fi
 }
 
-### process each file
-for file in $FILE_PATTERN; do
-  FILENAME=${file%*.swc}
-  # Create 1D
-  echo "Processing file ${FILENAME} now..." >&3
-  if [ "${CREATE_1D}" = "true" ]; then
-    # Presmoothing
-    if [ "${PRESMOOTH}" = "true" ]; then
-       echo -n "Coarsening 1d grid..." >&3
-       ./coarsen.sh "$file" &> /dev/null
+
+if [ ! -z "${BUNDLE_ONLY}" ]; then
+   ### process each file
+   for file in $FILE_PATTERN; do
+     FILENAME=${file%*.swc}
+     # Create 1D
+     echo "Processing file ${FILENAME} now..." >&3
+     if [ "${CREATE_1D}" = "true" ]; then
+       # Presmoothing
+       if [ "${PRESMOOTH}" = "true" ]; then
+          echo -n "Coarsening 1d grid..." >&3
+          ./coarsen.sh "$file" &> /dev/null
+          check_exit $? >&3
+       else
+         cp "$file" "${FILENAME}_collapsed_split_and_smoothed.swc"
+       fi
+
+       # Coarse grid generation (Re-sampling the spline)
+       echo -n "Step 1/3: Creating 1D coarse grid..." >&3
+       mkdir -p "${FOLDERNAME}/${FILENAME}" 
+       if [ "${METHOD_1D}" = "min" ]; then
+          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", -1, \"min\", 0, ${FORCE}, true)" 
+       else
+          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true)" 
+       fi
+
+       cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d.swc"
+       cp new_strategy_statistics.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_NEW.csv"
+       cp statistics_edges_original.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_OLD.csv"
        check_exit $? >&3
-    else
-      cp "$file" "${FILENAME}_collapsed_split_and_smoothed.swc"
-    fi
-
-    # Coarse grid generation (Re-sampling the spline)
-    echo -n "Step 1/3: Creating 1D coarse grid..." >&3
-    mkdir -p "${FOLDERNAME}/${FILENAME}" 
-    if [ "${METHOD_1D}" = "min" ]; then
-       $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", -1, \"min\", 0, ${FORCE}, true)" 
-    else
-       $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true)" 
-    fi
-
-    cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d.swc"
-    cp new_strategy_statistics.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_NEW.csv"
-    cp statistics_edges_original.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_OLD.csv"
-    check_exit $? >&3
-    
-    # Refining
-    echo -n "Step 2/3: Creating refinements..." >&3
-    numRef=0
-    if [ "${METHOD_1D}" = "min" ]; then
-      MIN=$(bc -l <<< "$(grep -ir "min seg length" log | cut -d ":" -f 3 | tr -d ' ')")
-      segLength1D=$MIN
-    fi
-    if [ "${REFINE}" = "true" ]; then
-     for ref in {1,2,4,8,16}; do
-        if [ "${METHOD_1D}" = "min" ]; then
-        segLength1D=min
-          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$MIN\", \"user\", \"$ref\", ${FORCE}, true)" > log_$ref.log
-        else
-          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", \"$ref\", ${FORCE}, true)" > log_$ref.log 
-        fi
-         cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${numRef}.swc" 
-          # copy coarse grid
-         if [ "${numRef}" -eq 0 ]; then
-            cp new_strategy.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d.ugx"
-         fi
-        numRef=$(($numRef+1))
-      done
-      check_exit $? >&3
-    fi
-  fi
-   
-  # Create 3D
-  if [ "${CREATE_3D}" = "true" ]; then
-    echo "Step 3/3 Creating 2D grids and inflations..." >&3
-    for inflation in {1,2,3,4,5}; do
-      if [ "${INFLATE}" = "true" ] || [ "${inflation}" -eq 1 ]; then
-        echo -n "Inflating mesh with factor $inflation..." >&3
-        if [ "${VR}" = "true" ]; then
-          $BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")" 
-        else
-          $BINARY -call "${SCRIPT_3D}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, false, false, \"$METHOD_3D\", \"$segLength3D\")" &> /dev/null
-        fi
+       
+       # Refining
+       echo -n "Step 2/3: Creating refinements..." >&3
+       numRef=0
+       if [ "${METHOD_1D}" = "min" ]; then
+         MIN=$(bc -l <<< "$(grep -ir "min seg length" log | cut -d ":" -f 3 | tr -d ' ')")
+         segLength1D=$MIN
+       fi
+       if [ "${REFINE}" = "true" ]; then
+        for ref in {1,2,4,8,16}; do
+           if [ "${METHOD_1D}" = "min" ]; then
+           segLength1D=min
+             $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$MIN\", \"user\", \"$ref\", ${FORCE}, true)" > log_$ref.log
+           else
+             $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", \"$ref\", ${FORCE}, true)" > log_$ref.log 
+           fi
+            cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${numRef}.swc" 
+             # copy coarse grid
+            if [ "${numRef}" -eq 0 ]; then
+               cp new_strategy.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d.ugx"
+            fi
+           numRef=$(($numRef+1))
+         done
+         check_exit $? >&3
+       fi
+     fi
       
-        check_exit $? >&3
-        cp after_selecting_boundary_elements_tris.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x$inflation.ugx"
-        cp after_selecting_boundary_elements.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x$inflation.ugx"
-        if [ "${REMOVE_ATTACHMENTS}" = "true" ]; then
-          sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x$inflation.ugx" > "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x${inflation}_wo_attachments.ugx"
-          sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x$inflation.ugx" > "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x${inflation}_wo_attachments.ugx"
-        fi
-      fi
-    done
-  fi
+     # Create 3D
+     if [ "${CREATE_3D}" = "true" ]; then
+       echo "Step 3/3 Creating 2D grids and inflations..." >&3
+       for inflation in {1,2,3,4,5}; do
+         if [ "${INFLATE}" = "true" ] || [ "${inflation}" -eq 1 ]; then
+           echo -n "Inflating mesh with factor $inflation..." >&3
+           if [ "${VR}" = "true" ]; then
+             $BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")" 
+           else
+             $BINARY -call "${SCRIPT_3D}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, false, false, \"$METHOD_3D\", \"$segLength3D\")" &> /dev/null
+           fi
+         
+           check_exit $? >&3
+           cp after_selecting_boundary_elements_tris.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x$inflation.ugx"
+           cp after_selecting_boundary_elements.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x$inflation.ugx"
+           if [ "${REMOVE_ATTACHMENTS}" = "true" ]; then
+             sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x$inflation.ugx" > "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x${inflation}_wo_attachments.ugx"
+             sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x$inflation.ugx" > "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x${inflation}_wo_attachments.ugx"
+           fi
+         fi
+       done
+     fi
+  done
+fi
 
-# TODO package into .vrn file
-cat << EOF
-{
-    "geometry" : {
-       "1d" : {
-         "files" : [
-           { "x0" : "${FILENAME}_segLength=${segLength1D}_1d.ugx", "description" : "no refinement" }
-         ]
-        }
+## bundle
+for file in $FILE_PATTERN; do
+ FILENAME=${file%*.swc}
+cat << EOF > ${FOLDERNAME}/${FILENAME}/MetaInfo.json
+   {
+       "geometry" : {
+          "1d" : {
+            "files" : [
+               { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_0.ugx", "description": "1d mesh coarse mesh", "refinement": "0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_0.ugx", "description": "1d mesh coarse mesh", "refinement": "1" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_0.ugx", "description": "1d mesh coarse mesh", "refinement": "2" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_0.ugx", "description": "1d mesh coarse mesh", "refinement": "3" }
+            ]
+           }
 
-     "2d": {
-        "files" : [
-            { "x1": ${FILENAME}_segLength=${segLength1D}_3d_x1.ugx, "description": "inflation factor 1" },
-            { "x2": ${FILENAME}_segLength=${segLength1D}_3d_x2.ugx, "description": "inflation factor 2" },
-            { "x3": ${FILENAME}_segLength=${segLength1D}_3d_x3.ugx, "description": "inflation factor 3" }
-        ]
-        }
-    }
-}
+        "2d": {
+           "files" : [
+               { "name" : "${FILENAME}_segLength=${segLength1D}_x1.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_x2.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_x3.ugx", "description": "2d surface mesh", "inflation" : "3.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_x4.ugx", "description": "2d surface mesh", "inflation" : "4.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_x5.ugx", "description": "2d surface mesh", "inflation" : "5.0" },
+           ]
+           }
+       }
+   }
 EOF
-
+zip -r ${FOLDERNAME}/${FILENAME}/${FILENAME}.vrn ${FOLDERNAME}/${FILENAME}/MetaInfo.json ${FOLDERNAME}/${FILENAME}/${FILENAME}*ugx
 done

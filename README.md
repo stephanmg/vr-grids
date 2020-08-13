@@ -28,8 +28,8 @@ to retrieve `SWC` files from the database:
 
 ### Database and cell requirements
 Cells will be packaged in a *.vrn* file if passes all automatic geometry checks. 
-Cells from *NeuroMorpho.org* need to be acyclic and should not contain four fold
-branching or more. (Both conditions are checked during grid generation and an 
+Cells from *NeuroMorpho.org* need to be acyclic (Physiologically not meaningful!) and should not contain four fold
+branching or more or root branches at the soma. (Both conditions are checked during grid generation and an 
 appropriate error message is printed)  Inflated geometries might look "clunky" 
 at branching points, depending on the inflation factor and the success of the 
 branching point optimization is not always guaranteed (Newton-alike optimization)

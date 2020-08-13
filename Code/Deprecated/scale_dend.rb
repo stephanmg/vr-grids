@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
-## scale dendrites and axons
+## scale dendrites
 ## author: stephanmg
+
 require 'csv'
 
 if ARGV.length != 2 
@@ -17,3 +18,4 @@ CSV.foreach(fname, headers:false, col_sep:' ') do |row|
   if (type != "1") then diam = diam.to_f * scale end
   puts "#{id}\t#{type}\t#{x}\t#{y}\t#{z}\t#{diam}\t#{pid}"
 end
+

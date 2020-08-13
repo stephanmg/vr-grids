@@ -19,7 +19,11 @@ run the VR pipeline script (Sh/Bash) only. Currently a platform independent
 VRL-Studio project is developed and found [here](https://github.com/c2m2/VRL-VRN-Generator).
 
 Optional is the installation of the NeuroMorpho.org REST API from [here](https://github.com/NeuroBox3D/neuromorpho)
-to retrieve `SWC` files from the database.
+to retrieve `SWC` files from the database:
+
+`python get_swc.py --name 44-4`
+
+(This will retrieve the file 44-4 from *NeuroMorpho.Org* database to be used in mesh generation.
 
 
 ### Database and cell requirements

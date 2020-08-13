@@ -1,35 +1,64 @@
 # C2M2VR-Grids 
-Tools and grid generation scripts for creating VR-ready Unity meshes from neuron morphologies stored in SWC format in a  publicly available database of neuronal morphologies at [NeuroMorpho](http://neuromorpho.org).
+Tools and grid generation scripts for creating VR-ready Unity meshes from neuron 
+morphologies stored in SWC format in a  publicly available database of neuronal 
+morphologies at [NeuroMorpho](http://neuromorpho.org).
 
-<strong>Attention:</strong> Temporarily grids are stored [here](https://temple.app.box.com/folder/116445648846) (Comparison of additional points in between branching points or not) and [there](https://temple.app.box.com/folder/116203752704) (Full cell geometries with blown up meshes, HINES ordering and 1d grid hierarchies with spline (sub)-sampling)
+<strong>Attention:</strong> Temporarily grids are stored
+ [here](https://temple.app.box.com/folder/116445648846) (Comparison of additional
+ points in between branching points or not) and 
+[there](https://temple.app.box.com/folder/116203752704) (Full cell geometries 
+with blown up meshes, HINES ordering and 1d grid hierarchies with spline (sub)-sampling)
 
 ## HOWTO generate grids
 
 ### Prerequisites
-Follow installation instructions for *ug4* from [here](https://github.com/ug4/ughub) with the plugin *neuro_collection* installed and enabled.
-For Windows installations a working WSL or Cygwin environment is required to run the VR pipeline script (Sh/Bash).
+Follow installation instructions for *ug4* from [here](https://github.com/ug4/ughub) 
+with the plugin *neuro_collection* installed and enabled from [there](https://github.com/NeuroBox/neuro_collection).
+For Windows installations a working WSL or Cygwin environment is required to 
+run the VR pipeline script (Sh/Bash) only. Currently a platform independent 
+VRL-Studio project is developed and found [here](https://github.com/c2m2/VRL-VRN-Generator).
+
+Optional is the installation of the NeuroMorpho.org REST API from [here](https://github.com/NeuroBox3D/neuromorpho)
+to retrieve `SWC` files from the database.
+
 
 ### Database and cell requirements
-Cells will be packaged in a *.vrn* file if passes all automatic geometry checks. Cells from *NeuroMorpho.org* need to be acyclic, otherwise expect errors during grid generation. Inflated geometries might look "clunky" at branching points, depending on the inflation factor and the success of branching point optimization. The user needs to decide if it is allowed to have some "clunky" branching points or not any.
+Cells will be packaged in a *.vrn* file if passes all automatic geometry checks. 
+Cells from *NeuroMorpho.org* need to be acyclic and should not contain four fold
+branching or more. (Both conditions are checked during grid generation and an 
+appropriate error message is printed)  Inflated geometries might look "clunky" 
+at branching points, depending on the inflation factor and the success of the 
+branching point optimization is not always guaranteed (Newton-alike optimization)
+The user will be warned and no grid will be generated at all if the checks do not pass.
 
 ### Usage
-Using the provided `pipeline_vr.sh` script (Bash/Sh compatible script) one can input an SWC file from the *NeuroMorpho* database and call it by:
 
-`./pipeline_vr.sh -i 37-4a.original.swc -o NewCells/ -s1 "-1"  -s2 -1 -c1 true -c3 true -m1 min -m2 identity -a true -p true -r true -f false -b false -v true`
-
-This will output the 1d regularization, 1d refinements, blown up meshes in HINES format with and without attachment data to the provided folder NewCells (Folder must not exist before) The regularization will be done with minimum edge length between branching points unless the user specifies an alternative edge length themself for regularization.
-
-Usually it suffices to keep the default parameters (Which are shown above explicitly) and invoke the following to achieve the same as above:
-
-`./pipeline_vr.sh -i 44-4.CNG_original.swc -o NewCells/`
-
-Note, that the option `-a false` removes the attachments for visualization in ProMesh.
-
-### Usage
 `pipeline_vr.sh -i <INPUT_PATTERN> -o <OUTPUT_FOLDER> -s1 <SEGMENT_LENGTH_1D>
 			 [-s2 <SEGMENT_LENGTH_3D>] [-c1 <CREATE_1D>] [-c3 <CREATE_3D>] [-d <DEBUG>] [-q <QUIET>]
 			 [-m1 <METHOD_1D>] [-m2 <METHOD_3D>] [-a <REMOVE_ATTACHMENTS>] [-v <FOR_VR>]
 			 [-p <PRE_SMOOTH>] [-r <REFINEMENT>] [-f <FORCE_SPLIT_EDGE>] [-b <INFLATE_MESH>]`
+
+Basic usage (Single input file and output to NewCell folder):
+
+`./pipeline_vr.sh -i 44-4.CNG_original.swc -o NewCell/`
+
+Note, that the option `-a false` removes the attachments for visualization in ProMesh 
+and writes additional meshes with the suffix *_wo_attachments*.
+
+`./pipeline_vr.sh -i 44-4.CNG_original.swc -o NewCell/ -a false`
+
+
+Extended usage:
+
+`./pipeline_vr.sh -i 37-4a.original.swc -o NewCells/ -s1 "-1"  -s2 -1 -c1 true -c3 true -m1 min -m2 identity -a true -p true -r true -f false -b false -v true`
+
+This will output the 1d regularization, 1d refinements, blown up meshes in HINES format 
+with and without attachment data to the provided folder NewCells (Folder must not 
+exist before) The regularization will be done with minimum edge length between 
+branching points unless the user specifies an alternative edge length themself
+for regularization.
+
+Usually it suffices to keep the default parameters (Which are shown above explicitly) and invoke the following to achieve the same as above:
 
 ## Test
 A temporary folder to put in cells for checking if they fullfill all prerequisites on the mesh quality.

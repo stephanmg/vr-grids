@@ -1,0 +1,40 @@
+image: Visual Studio 2017
+
+init:
+  - git config --global core.autocrlf input
+
+clone_depth: 50
+
+platform:
+  - x64
+
+configuration:
+  - Release
+
+install:
+  - if not exist appveyor_root mkdir appveyor_root
+  - cd appveyor_root
+  - if exist ughub rmdir /S /Q ughub
+  - git clone https://www.github.com/UG4/ughub
+  
+  - if not exist ug4 mkdir ug4 
+  - if not exist ug4\.ughub ughub\ughub init ug4
+  - cd ug4 
+  - if not exist ugcore ..\ughub\ughub install ugcore
+  - ..\ughub\ughub addsource neurobox https://github.com/NeuroBox3D/neurobox-packages
+  - ..\ughub\ughub install neuro_collection
+  - mkdir build
+  - cd build
+
+build_script:
+  - cd %APPVEYOR_BUILD_FOLDER%\appveyor_root\ug4
+  - cd build
+  - cmake ..\ -DDIM=3 -DCPU=1 -DLAPACK=OFF -DBLAS=OFF -DENABLE_ALL_PLUGINS=ON -DPARALLEL=OFF -DEMBEDDED_PLUGINS=ON -DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE=X64 -G "Visual Studio 15 2017 Win64"  -DCOMPILE_INFO=OFF 
+  - MSBuild .\ug4.sln  /property:Configuration=Release /property:Platform=x64
+  - cd ..\bin
+  - git clone https://github.com/NeuroBox3D/neuromorpho
+  - cd neuromorpho
+  - mkdir TestCell
+  - python get_swc.py --name 44-4
+  - Release\ugshell.exe -call "test_import_swc_and_regularize(\"44-4.CNG.swc\", \"8\", \"user\", 0, false, true)"
+  - Release\ugshell.exe -call  "test_import_swc_general_var_for_vr_var(\"new_strategy.swc\", false, 0.5, true, 8, 0, true, 1, \"identity\", \"-1\")" 

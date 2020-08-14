@@ -45,6 +45,6 @@ script:
    - cd ../../../
    - git clone https://github.com/NeuroBox3D/neuromorpho
    - cd neuromorpho
-   - python get_swc.py --name 44-4
    - mkdir TestCell
+   - python get_swc.py --name 44-4
    - ../pipeline_vr.sh -i 44-4.CNG.swc -o TestCell -d true

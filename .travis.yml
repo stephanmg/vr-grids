@@ -43,7 +43,7 @@ before_script:
   - travis_wait 45 make -j2
 
 script:
-   - cd $HOME
+   - cd $TRAVIS_BUILD_DIR
    - ls -l
    - git clone https://github.com/NeuroBox3D/neuromorpho
    - cd neuromorpho

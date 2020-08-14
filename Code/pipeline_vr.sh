@@ -170,9 +170,9 @@ if [ ! -z "${BUNDLE_ONLY}" ]; then
        echo -n "Step 1/3: Creating 1D coarse grid..." >&3
        mkdir -p "${FOLDERNAME}/${FILENAME}" 
        if [ "${METHOD_1D}" = "min" ]; then
-          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", -1, \"min\", 0, ${FORCE}, true)"  &> /dev/null
+          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", -1, \"min\", 0, ${FORCE}, true)" 
        else
-          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true)"  &> /dev/null
+          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true)"
        fi
        check_exit $? >&3
 

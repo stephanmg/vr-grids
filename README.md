@@ -9,8 +9,10 @@ morphologies at [NeuroMorpho](http://neuromorpho.org).
 [there](https://temple.app.box.com/folder/116203752704) (Full cell geometries 
 with blown up meshes, HINES ordering and 1d grid hierarchies with spline (sub)-sampling)
 
+[![Build Status Linux](https://travis-ci.org/stephanmg/vr-grids.svg?branch=development)](https://travis-ci.org/stephanmg/vr-grids)
 [![Build Status OSX](https://travis-ci.org/stephanmg/vr-grids.svg?branch=development)](https://travis-ci.org/stephanmg/vr-grids)
-[![Build Status Windows](https://travis-ci.org/stephanmg/vr-grids.svg?branch=development)](https://travis-ci.org/stephanmg/vr-grids)
+[![Build status Windows](https://ci.appveyor.com/api/projects/status/5h2sb2s05auy13uc?svg=true)](https://ci.appveyor.com/project/stephanmg/vr-grids)
+
 
 ## HOWTO generate grids
 

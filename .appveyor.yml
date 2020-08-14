@@ -29,7 +29,7 @@ install:
 build_script:
   - cd %APPVEYOR_BUILD_FOLDER%\appveyor_root\ug4
   - cd build
-  - cmake ..\ -DDIM=3 -DCPU=1 -DLAPACK=OFF -DBLAS=OFF -DENABLE_ALL_PLUGINS=ON -DPARALLEL=OFF -DEMBEDDED_PLUGINS=ON -DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE=X64 -G "Visual Studio 15 2017 Win64"  -DCOMPILE_INFO=OFF 
+  - cmake ..\ -DDIM=3 -DCPU=1 -DLAPACK=OFF -DSTATIC_BUILD=ON -DBLAS=OFF -DENABLE_ALL_PLUGINS=ON -DPARALLEL=OFF -DEMBEDDED_PLUGINS=ON  -DCOMPILE_INFO=OFF -DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE=X64 -G "Visual Studio 15 2017 Win64"  -DCOMPILE_INFO=OFF 
   - MSBuild .\ug4.sln  /property:Configuration=Release /property:Platform=x64
   - cd ..\bin
   - git clone https://github.com/NeuroBox3D/neuromorpho

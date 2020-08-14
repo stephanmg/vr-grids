@@ -32,6 +32,7 @@ before_script:
   - git clone https://www.github.com/UG4/ughub
   - mkdir ug4
   - cd ug4
+  - pwd
   - ../ughub/ughub init .
   - ../ughub/ughub install ugcore 
   - ../ughub/ughub add 

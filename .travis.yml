@@ -43,10 +43,11 @@ before_script:
   - travis_wait 45 make -j2
 
 script:
-   - cd ../../../
+   - cd $HOME
+   - ls -l
    - git clone https://github.com/NeuroBox3D/neuromorpho
    - cd neuromorpho
    - mkdir -p TestCell/44-4.CNG
    - python get_swc.py --name 44-4
    - ./travis_root/ug4/bin/ugshell -call "test_import_swc_and_regularize(\"44-4.CNG.swc\", \"8\", \"user\", 0, false, true)"
-   - ./travis_root/ug4/bin/ugshell -call  "test_import_swc_general_var_for_vr_var(\"new_strategy.swc\", false, 0.5, true, 8, 0, true, 1, \"identity\", \"-1\")" 
+   - ./travis_root/ug4/bin/ugshell -call "test_import_swc_general_var_for_vr_var(\"new_strategy.swc\", false, 0.5, true, 8, 0, true, 1, \"identity\", \"-1\")" 

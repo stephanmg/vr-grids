@@ -45,12 +45,12 @@ before_script:
 
 script:
    - cd $TRAVIS_BUILD_DIR
-   - ls -l
+   - echo $TRAVIS_BUILD_DIR
+   - pwd
    - git clone https://github.com/NeuroBox3D/neuromorpho
    - cd neuromorpho
    - mkdir -p TestCell/44-4.CNG
    - python get_swc.py --name 44-4
-   - if [ "${TRAVIS_OS_NAME} = "linux" ]; then /home/travis/build/stephanmg/vr-grids/travis_root/ug4/bin/ugshell -call "test_import_swc_and_regularize(\"44-4.CNG.swc\", \"8\", \"user\", 0, false, true)"; fi
-   - if [ "${TRAVIS_OS_NAME} = "linux" ]; then /home/travis/build/stephanmg/vr-grids/travis_root/ug4/bin/ugshell -call "test_import_swc_general_var_for_vr_var(\"new_strategy.swc\", false, 0.5, true, 8, 0, true, 1, \"identity\", \"-1\")"; fi 
-   - if [ "${TRAVIS_OS_NAME} = "osx" ]; then /Users/travis/build/stephanmg/vr-grids/travis_root/ug4/bin/ugshell -call "test_import_swc_and_regularize(\"44-4.CNG.swc\", \"8\", \"user\", 0, false, true)"; fi
-   - if [ "${TRAVIS_OS_NAME} = "osx" ]; then /Users/travis/build/stephanmg/vr-grids/travis_root/ug4/bin/ugshell -call "test_import_swc_general_var_for_vr_var(\"new_strategy.swc\", false, 0.5, true, 8, 0, true, 1, \"identity\", \"-1\")"; fi 
+   - ${TRAVIS_BUILD_DIR}/travis_root/ug4/bin/ugshell -call "test_import_swc_and_regularize(\"44-4.CNG.swc\", \"8\", \"user\", 0, false, true)"
+   - ${TRAVIS_BUILD_DIR}/travis_root/ug4/bin/ugshell -call "test_import_swc_general_var_for_vr_var(\"new_strategy.swc\", false, 0.5, true, 8, 0, true, 1, \"identity\", \"-1\")" 
+   

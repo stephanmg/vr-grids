@@ -172,7 +172,7 @@ if [ ! -z "${BUNDLE_ONLY}" ]; then
        if [ "${METHOD_1D}" = "min" ]; then
           $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", -1, \"min\", 0, ${FORCE}, true)" 
        else
-          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true)"
+          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true)"  
        fi
        check_exit $? >&3
 
@@ -196,10 +196,12 @@ if [ ! -z "${BUNDLE_ONLY}" ]; then
            else
              $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", \"$ref\", ${FORCE}, true)" > log_$ref.log 
            fi
-            cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${numRef}.swc" 
+             cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${numRef}.swc" 
              # copy coarse grid
             if [ "${numRef}" -eq 0 ]; then
-               cp new_strategy.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d.ugx"
+               cp new_strategy.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.ugx"
+            else 
+               cp new_strategy.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${numRef}.ugx"
             fi
            numRef=$(($numRef+1))
          done
@@ -258,5 +260,8 @@ cat << EOF > ${FOLDERNAME}/${FILENAME}/MetaInfo.json
     }
 }
 EOF
-zip -r ${FOLDERNAME}/${FILENAME}/${FILENAME}.vrn ${FOLDERNAME}/${FILENAME}/MetaInfo.json ${FOLDERNAME}/${FILENAME}/${FILENAME}*ugx
+
+cd ${FOLDERNAME}/${FILENAME}
+zip -j -x "*_wo_attachments.ugx" -x "*_3d_tris_*.ugx" -r ${FILENAME}.vrn MetaInfo.json *ugx
+cd ../../
 done

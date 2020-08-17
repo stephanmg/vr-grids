@@ -1,6 +1,6 @@
 #!/bin/bash
 ## add good working cells here
-cells=(44-4)
+cells=(44-4 37-4a)
 
 ## create meshes 
 for i in "${cells[@]}"; do

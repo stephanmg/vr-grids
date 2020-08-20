@@ -32,6 +32,7 @@ before_script:
   - git clone https://www.github.com/UG4/ughub
   - mkdir ug4
   - cd ug4
+  - pwd
   - ../ughub/ughub init .
   - ../ughub/ughub install ugcore 
   - ../ughub/ughub add 
@@ -43,10 +44,11 @@ before_script:
   - travis_wait 45 make -j2
 
 script:
-   - cd ../../../
+   - cd $TRAVIS_BUILD_DIR
+   - echo $TRAVIS_BUILD_DIR
+   - pwd
    - git clone https://github.com/NeuroBox3D/neuromorpho
    - cd neuromorpho
-   - mkdir -p TestCell/44-4.CNG
-   - python get_swc.py --name 44-4
-   - git clone https://github.com/stephanmg/vr-grids
-   - ./vr-grids/Code/pipeline_vr.sh -i 44-4.CNG.swc -o TestCell -d true
+   - cp $TRAVIS_BUILD_DIR/.build.sh build.sh
+   - chmod +x build.sh
+   - ./build.sh

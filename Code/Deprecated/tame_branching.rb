@@ -42,7 +42,7 @@ if options[:identifier]
 end
 
 # find duplicated parent ids for detecting multi branches
-duplicates = lines.group_by(&:last).select{|k, v| v.count > NumSupportedBranches}.keys
+duplicates = lines.group_by(&:last).select{|_, v| v.count > NumSupportedBranches}.keys
 encountered = Hash[ *duplicates.collect { |v| [ v, 0 ] }.flatten ]
 
 # just shows multi branches and exists

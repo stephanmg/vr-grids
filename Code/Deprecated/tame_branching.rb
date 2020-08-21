@@ -28,7 +28,7 @@ if options[:file_name].nil? then ! options[:help] ? usage.call() : exit() end
 $,, $; = " ", " "
 lines = []
 File.foreach(options[:file_name]).each do |line|
-  lines << line.split.each_with_index.map { |elem, i| ([0,1,6].include?i) ? elem.to_i : elem.to_f } if not line =~ /^#/;
+  lines << line.split.each_with_index.map { |elem, i| ([0,1,6].include?i) ? elem.to_i : elem.to_f } unless line =~ /^#/;
 end
 
 # correct identifiers 

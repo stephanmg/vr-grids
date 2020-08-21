@@ -7,6 +7,7 @@ morphologies stored in the SWC format and retrieved from the publicly available 
  [here](https://temple.app.box.com/folder/116445648846) (Comparison of additional points in between branching points or not) and 
 [there](https://temple.app.box.com/folder/116203752704) (Full cell geometries with blown up meshes, HINES ordering and 1d grid hierarchies with spline (sub)-sampling)
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/716dbe2190f14dd1a636aaddeefb18ce)](https://app.codacy.com/manual/stephan_5/vr-grids?utm_source=github.com&utm_medium=referral&utm_content=stephanmg/vr-grids&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status Linux](https://travis-ci.org/stephanmg/vr-grids.svg?branch=development)](https://travis-ci.org/stephanmg/vr-grids)
 [![Build Status OSX](https://travis-ci.org/stephanmg/vr-grids.svg?branch=development)](https://travis-ci.org/stephanmg/vr-grids)
 [![Build status Windows](https://ci.appveyor.com/api/projects/status/5h2sb2s05auy13uc?svg=true)](https://ci.appveyor.com/project/stephanmg/vr-grids)

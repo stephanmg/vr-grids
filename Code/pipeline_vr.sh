@@ -239,25 +239,21 @@ for file in $FILE_PATTERN; do
  FILENAME=${file%*.swc}
 cat << EOF > ${FOLDERNAME}/${FILENAME}/MetaInfo.json
 {
-    "1d" : {
-         "files" : [
-            { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_0.ugx", "description": "1d mesh coarse mesh", "refinement": "0" },
-            { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_1.ugx", "description": "1d mesh coarse mesh", "refinement": "1" },
-            { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_2.ugx", "description": "1d mesh coarse mesh", "refinement": "2" },
-            { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_3.ugx", "description": "1d mesh coarse mesh", "refinement": "3" },
-            { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_4.ugx", "description": "1d mesh coarse mesh", "refinement": "4" }
-         ]
-    }
-
-    "2d": {
-         "files" : [
+    "geom1d" : [
+         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_0.ugx", "description": "1d mesh coarse mesh", "refinement": "0" },
+         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_1.ugx", "description": "1d mesh coarse mesh", "refinement": "1" },
+         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_2.ugx", "description": "1d mesh coarse mesh", "refinement": "2" },
+         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_3.ugx", "description": "1d mesh coarse mesh", "refinement": "3" },
+         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_4.ugx", "description": "1d mesh coarse mesh", "refinement": "4" }
+    ],
+   
+    "geom2d": [
             { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
             { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
             { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x3.ugx", "description": "2d surface mesh", "inflation" : "3.0" },
             { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x4.ugx", "description": "2d surface mesh", "inflation" : "4.0" },
             { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
-         ]
-    }
+     ]
 }
 EOF
 

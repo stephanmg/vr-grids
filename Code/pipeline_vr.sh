@@ -46,7 +46,7 @@ segLength3D="-1" # desired segment length in 3d st ructure
 CREATE_3D=true # indicate that 3d meshes should be generated
 CREATE_1D=true # indicate that 1d meshes should be generated
 METHOD_3D="identity" # method identity usually for VR use-case (evaluation at spline support nodes)
-METHOD_1D="user" # either user or minimum (segLength1D=-1) for VR use-case or auto (segLength1D=-1)
+METHOD_1D="user" # either user or minimum (segLength1D=-1) for VR use-case or auto (segLength1D=-1) or angle for GQ's angle length criterion
 REMOVE_ATTACHMENTS=true # remove attachments when viewing in non-compatible ProMesh versions
 PRESMOOTH=false # pre smooth the whole structure (usually not a good idea as it moves bps too heavily)
 REFINE=true # refine the mesh by powers of 2
@@ -58,6 +58,7 @@ DEBUG=true # output all warnings and debug statements
 BUNDLE_ONLY=false # if true, then only bundle .vrn file is created, no geometries are generated
 REFINEMENTS=(1 2 4 8 16) # how many refinements (4)
 INFLATIONS=(1 2 3 4 5) # how many inflations (4)
+MAX_INFLATION=$(echo "${INFLATIONS[*]}" | sort -nr | head -n1) # max inflation factor
 
 # Parse CLI options
 while getopts ":i:l:m1:m2:s1:s2:a:p:r:f:o:c1:c3:b:v:d:q:c:" o; do
@@ -171,6 +172,8 @@ if [ ! -z "${BUNDLE_ONLY}" ]; then
        mkdir -p "${FOLDERNAME}/${FILENAME}" 
        if [ "${METHOD_1D}" = "min" ]; then
           $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", -1, \"min\", 0, ${FORCE}, true)" 
+       if [ "${METHOD_1D}" = "angle" ]; then
+          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true, $MAX_INFLATION)"  
        else
           $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true)"  
        fi

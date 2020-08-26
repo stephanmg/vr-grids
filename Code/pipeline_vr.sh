@@ -137,7 +137,7 @@ fi
 
 # if quiet is desired (only warnings)
 if [ ! -z "${QUIET}" ]; then
-    exec 3>&2
+   exec 3>&2
 fi
 
 # function to check exit status
@@ -165,19 +165,19 @@ if [ ! -z "${BUNDLE_ONLY}" ]; then
        else
          cp "$file" "${FILENAME}_collapsed_split_and_smoothed.swc"
        fi
-
+      
        # Coarse grid generation (Re-sampling the spline)
        echo -n "Step 1/3: Creating 1D coarse grid..." >&3
        mkdir -p "${FOLDERNAME}/${FILENAME}" 
        if [ "${METHOD_1D}" = "min" ]; then
           $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", -1, \"min\", 0, ${FORCE}, true)" 
-       if [ "${METHOD_1D}" = "angle" ]; then
+       elif [ "${METHOD_1D}" = "angle" ]; then
           $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true, $MAX_INFLATION)"  
        else
           $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true)"  
        fi
        check_exit $? >&3
-
+    
        cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d.swc"
        cp new_strategy_statistics.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_NEW.csv"
        cp statistics_edges_original.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_OLD.csv"
@@ -233,7 +233,6 @@ if [ ! -z "${BUNDLE_ONLY}" ]; then
        fi
       done
    fi
-  fi
 done
 fi
 

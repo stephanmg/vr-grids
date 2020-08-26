@@ -150,7 +150,6 @@ function check_exit() {
     fi
 }
 
-
 if [ ! -z "${BUNDLE_ONLY}" ]; then
    ### process each file
    for file in $FILE_PATTERN; do
@@ -231,10 +230,11 @@ if [ ! -z "${BUNDLE_ONLY}" ]; then
              sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x$inflation.ugx" > "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x${inflation}_wo_attachments.ugx"
              sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x$inflation.ugx" > "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x${inflation}_wo_attachments.ugx"
            fi
-         fi
-       done
-     fi
-  done
+       fi
+      done
+   fi
+  fi
+done
 fi
 
 ## bundle
@@ -251,11 +251,11 @@ cat << EOF > ${FOLDERNAME}/${FILENAME}/MetaInfo.json
     ],
    
     "geom2d": [
-            { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
-            { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
-            { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x3.ugx", "description": "2d surface mesh", "inflation" : "3.0" },
-            { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x4.ugx", "description": "2d surface mesh", "inflation" : "4.0" },
-            { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
+         { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
+         { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
+         { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x3.ugx", "description": "2d surface mesh", "inflation" : "3.0" },
+         { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x4.ugx", "description": "2d surface mesh", "inflation" : "4.0" },
+         { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
      ]
 }
 EOF

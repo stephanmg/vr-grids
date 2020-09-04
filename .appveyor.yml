@@ -10,8 +10,14 @@ platform:
 
 configuration:
   - Release
+  
+environment:
+  matrix:
+  - PYTHON: "C:\\Python37"
+   
 
 install:
+  - SET PATH=%PYTHON%;%PATH%
   - if not exist appveyor_root mkdir appveyor_root
   - cd appveyor_root
   - if exist ughub rmdir /S /Q ughub

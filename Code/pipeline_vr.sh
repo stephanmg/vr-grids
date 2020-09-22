@@ -300,3 +300,14 @@ cd ${FOLDERNAME}/${FILENAME}
 zip -j -x "*_wo_attachments.ugx" -x "*_3d_x*.ugx" -r ${FILENAME}.vrn MetaInfo.json *ugx
 cd ../../
 done
+
+## upload to google drive (`get_my_token` gives us the OAUTH2 token to access google's API)
+for file in "$FILE_PATTERN"; do
+  cd ${FOLDERNAME}/${FILENAME}
+  FILENAME=${file%*.swc}
+  curl -X POST -L \
+    -H "Authorization: Bearer `get_my_token`" \
+    -F "metadata={name : '${FILENAME}.vrn'};type=application/json;charset=UTF-8" \
+    -F "file=@backup.zip;type=application/zip" \
+    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart"
+done

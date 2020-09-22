@@ -38,6 +38,42 @@ usage() {
   exit 1; 
 }
 
+# provide error messages to the user
+fail() {
+   local status=$1
+   case $status in
+      0)
+      echo "Grid generation successful."
+      ;;
+      2) 
+      echo "Regularization failed."
+      ;;
+      3)
+      echo "Invalid branching pattern."
+      ;;
+      4)
+      echo "Mesh contains cycles. Disallowed since physiologically not sensible."
+      ;;
+      5)
+      echo "Cylinder-cylinder intersection detected."
+      ;;
+      6)
+      echo "Start cylinders of neurites overlap at soma surface."
+      ;;
+      7)
+      echo "Tetrahedralization failed."
+      ;;
+      8)
+      echo "Branching point optimization failed."
+      ;;
+      9)
+      echo "No permissble render vector could be found."
+      ;;
+      *)
+      echo "Unknown or unexpected runtime error."
+      ;;
+esac
+
 # actual parameters and options
 FILE_PATTERN= # input files matching FILE_PATTERN
 FOLDERNAME= # output folder where grid files are written to
@@ -218,7 +254,8 @@ if [ ! -z "${BUNDLE_ONLY}" ]; then
          if [ "${INFLATE}" = "true" ] || [ "${inflation}" -eq 1 ]; then
            echo -n "Inflating mesh with factor $inflation..." >&3
            if [ "${VR}" = "true" ]; then
-             $BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")" 
+             ERROR_CODE=$($BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")")
+             fail "$ERROR_CODE"
            else
              $BINARY -call "${SCRIPT_3D}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, false, false, \"$METHOD_3D\", \"$segLength3D\")" &> /dev/null
            fi

@@ -38,6 +38,11 @@ usage() {
   exit 1; 
 }
 
+# shell variable GOOGLE_DRIVE_OAUTH_TOKEN must be set 
+get_my_token() {
+  echo "$GOOGLE_DRIVE_OAUTH_TOKEN"
+}
+
 # provide error messages to the user
 fail() {
    local status=$1
@@ -73,6 +78,7 @@ fail() {
       echo "Unknown or unexpected runtime error."
       ;;
 esac
+}
 
 # actual parameters and options
 FILE_PATTERN= # input files matching FILE_PATTERN
@@ -301,25 +307,24 @@ zip -j -x "*_wo_attachments.ugx" -x "*_3d_x*.ugx" -r ${FILENAME}.vrn MetaInfo.js
 cd ../../
 done
 
-# shell variable GOOGLE_DRIVE_OAUTH_TOKEN must be set 
-function() get_my_token {
-  echo "$GOOGLE_DRIVE_OAUTH_TOKEN"
-}
-
-## upload to google drive (`get_my_token` gives us the OAUTH2 token to access google's API)
+# upload to google drive (`get_my_token` gives us the OAUTH2 token to access google's API)
 echo "Do you wish to upload your generated meshes into a cloud storage (Google Drive)?"
-select yn in "Yes" "No"
+select yn in "Yes" "No" 
+do
 case $yn in
-    Yes ) 
-   {for file in "$FILE_PATTERN"; do
-    cd ${FOLDERNAME}/${FILENAME}
-    FILENAME=${file%*.swc}
-    curl -X POST -L \
-     -H "Authorization: Bearer `get_my_token`" \
-     -F "metadata={name : '${FILENAME}.vrn'};type=application/json;charset=UTF-8" \
-     -F "file=@${FILENAME}.vrn;type=application/zip" \
-      "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart"
-   done
-   } ;;
-    No ) exit;;
+   Yes)
+   for file in "$FILE_PATTERN"; do
+      cd ${FOLDERNAME}/${FILENAME}
+      FILENAME=${file%*.swc}
+      curl -X POST -L \
+      -H "Authorization: Bearer `get_my_token`" \
+      -F "metadata={name : '${FILENAME}.vrn'};type=application/json;charset=UTF-8" \
+      -F "file=@${FILENAME}.vrn;type=application/zip" \
+       "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart"
+      done
+    ;;
+   *)
+    exit
+    ;;
 esac
+done

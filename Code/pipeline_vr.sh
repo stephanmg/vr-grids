@@ -256,24 +256,27 @@ if [ ! -z "${BUNDLE_ONLY}" ]; then
      # Create 3D
      if [ "${CREATE_3D}" = "true" ]; then
        echo "Step 3/3 Creating 2D grids and inflations..." >&3
-        for inflation in "${INFLATIONS[@]}"; do
-         if [ "${INFLATE}" = "true" ] || [ "${inflation}" -eq 1 ]; then
-           echo -n "Inflating mesh with factor $inflation..." >&3
-           if [ "${VR}" = "true" ]; then
-             ERROR_CODE=$($BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")")
-             fail "$ERROR_CODE"
-           else
-             $BINARY -call "${SCRIPT_3D}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_0.swc\", false, 0.5, true, 8, 0, true, $inflation, false, false, \"$METHOD_3D\", \"$segLength3D\")" &> /dev/null
-           fi
-         
-           check_exit $? >&3
-           cp after_selecting_boundary_elements_tris.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x$inflation.ugx"
-           cp after_selecting_boundary_elements.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x$inflation.ugx"
-           if [ "${REMOVE_ATTACHMENTS}" = "true" ]; then
-             sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x$inflation.ugx" > "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x${inflation}_wo_attachments.ugx"
-             sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x$inflation.ugx" > "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x${inflation}_wo_attachments.ugx"
-           fi
-       fi
+        for (( ref=0;  ref < ${#REFINEMENTS[@]}; ref++)); do
+          for inflation in "${INFLATIONS[@]}"; do
+            if [ "${INFLATE}" = "true" ] || [ "${inflation}" -eq 1 ]; then
+             echo -n "Inflating mesh with factor $inflation..." >&3
+              if [ "${VR}" = "true" ]; then
+                echo "\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${ref}.swc\""
+                echo "ref: $ref"
+                ERROR_CODE=$($BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${ref}.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")")
+                fail "$ERROR_CODE"
+              else
+                $BINARY -call "${SCRIPT_3D}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${ref}.swc\", false, 0.5, true, 8, 0, true, $inflation, false, false, \"$METHOD_3D\", \"$segLength3D\")" &> /dev/null
+              fi
+              check_exit $? >&3
+              cp after_selecting_boundary_elements_tris.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x${inflation}_ref_${ref}.ugx"
+              cp after_selecting_boundary_elements.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x${inflation}_ref_${ref}.ugx"
+            if [ "${REMOVE_ATTACHMENTS}" = "true" ]; then
+                sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x${inflation}_ref_${ref}.ugx" > "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x${inflation}_ref_${ref}_wo_attachments.ugx"
+                sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x${inflation}_ref_${ref}.ugx" > "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x${inflation}_ref_${ref}_wo_attachments.ugx"
+              fi
+          fi
+        done
       done
    fi
 done
@@ -285,20 +288,51 @@ for file in $FILE_PATTERN; do
 cat << EOF > ${FOLDERNAME}/${FILENAME}/MetaInfo.json
 {
     "geom1d" : [
-         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_0.ugx", "description": "1d mesh coarse mesh", "refinement": "0" },
-         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_1.ugx", "description": "1d mesh coarse mesh", "refinement": "1" },
-         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_2.ugx", "description": "1d mesh coarse mesh", "refinement": "2" },
-         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_3.ugx", "description": "1d mesh coarse mesh", "refinement": "3" },
-         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_4.ugx", "description": "1d mesh coarse mesh", "refinement": "4" }
-    ],
-   
-    "geom2d": [
-         { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
-         { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
-         { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x3.ugx", "description": "2d surface mesh", "inflation" : "3.0" },
-         { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x4.ugx", "description": "2d surface mesh", "inflation" : "4.0" },
-         { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
-     ]
+         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_0.ugx", "description": "1d mesh coarse mesh", "refinement": "0",
+           "inflations" : [
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1_ref_0.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2_ref_0.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x3_ref_0.ugx", "description": "2d surface mesh", "inflation" : "3.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x4_ref_0.ugx", "description": "2d surface mesh", "inflation" : "4.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5_ref_0.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
+           ]
+         },
+         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_1.ugx", "description": "1d mesh coarse mesh", "refinement": "1" ,
+           "inflations" : [
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1_ref_1.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2_ref_1.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x3_ref_1.ugx", "description": "2d surface mesh", "inflation" : "3.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x4_ref_1.ugx", "description": "2d surface mesh", "inflation" : "4.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5_ref_1.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
+           ]
+         },
+         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_2.ugx", "description": "1d mesh coarse mesh", "refinement": "1" ,
+           "inflations" : [
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1_ref_2.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2_ref_2.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x3_ref_2.ugx", "description": "2d surface mesh", "inflation" : "3.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x4_ref_2.ugx", "description": "2d surface mesh", "inflation" : "4.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5_ref_2.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
+           ]
+         },
+       { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_3.ugx", "description": "1d mesh coarse mesh", "refinement": "1" ,
+           "inflations" : [
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1_ref_3.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2_ref_3.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x3_ref_3.ugx", "description": "2d surface mesh", "inflation" : "3.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x4_ref_3.ugx", "description": "2d surface mesh", "inflation" : "4.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5_ref_3.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
+           ]
+         },
+       { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_4.ugx", "description": "1d mesh coarse mesh", "refinement": "1" ,
+           "inflations" : [
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1_ref_4.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2_ref_4.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x3_ref_4.ugx", "description": "2d surface mesh", "inflation" : "3.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x4_ref_4.ugx", "description": "2d surface mesh", "inflation" : "4.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5_ref_4.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
+           ]
+      }
 }
 EOF
 

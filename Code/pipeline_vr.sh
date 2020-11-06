@@ -74,9 +74,6 @@ fail() {
       9)
       echo "No permissble render vector could be found."
       ;;
-      *)
-      echo "Unknown or unexpected runtime error."
-      ;;
 esac
 }
 
@@ -172,11 +169,13 @@ elif [ -z "${segLength1D}" ] && [ "${METHOD_1D}" != "auto"]; then
     usage
 fi
 
+DEBUG=true
 # if debugging is desired
 if [ "${DEBUG}" = "false" ]; then
    exec 3>&1 &>/dev/null
 fi
 
+QUIET=false
 # if quiet is desired (only warnings)
 if [ ! -z "${QUIET}" ]; then
    exec 3>&2
@@ -262,13 +261,15 @@ if [ ! -z "${BUNDLE_ONLY}" ]; then
              echo -n "Inflating mesh with factor $inflation..." >&3
               if [ "${VR}" = "true" ]; then
                 echo "\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${ref}.swc\""
-                echo "ref: $ref"
-                ERROR_CODE=$($BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${ref}.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")")
+
+                  $BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${ref}.swc\", false,     0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")"
+#                gdb -ex=r --args $BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${ref}.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")"
                 fail "$ERROR_CODE"
               else
-                $BINARY -call "${SCRIPT_3D}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${ref}.swc\", false, 0.5, true, 8, 0, true, $inflation, false, false, \"$METHOD_3D\", \"$segLength3D\")" &> /dev/null
+                 $BINARY -call "${SCRIPT_3D}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${ref}.swc\", false, 0.5, true, 8, 0, true, $inflation, false, false, \"$METHOD_3D\", \"$segLength3D\")"
               fi
               check_exit $? >&3
+              echo "Copying files..."
               cp after_selecting_boundary_elements_tris.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x${inflation}_ref_${ref}.ugx"
               cp after_selecting_boundary_elements.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x${inflation}_ref_${ref}.ugx"
             if [ "${REMOVE_ATTACHMENTS}" = "true" ]; then

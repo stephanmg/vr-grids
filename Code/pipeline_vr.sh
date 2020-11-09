@@ -95,9 +95,9 @@ VR=true # indicate that VR use-case is desired (default) or ug4 use-case
 QUIET=false # output only warnings
 DEBUG=true # output all warnings and debug statements 
 BUNDLE_ONLY=false # if true, then only bundle .vrn file is created, no geometries are generated
-REFINEMENTS=(1 2 4 8 16) # how many refinements (4)
-INFLATIONS=(1 2 3 4 5) # how many inflations (4)
-MAX_INFLATION=$(echo "${INFLATIONS[*]}" | sort -nr | head -n1) # max inflation factor
+REFINEMENTS=(1 4) # how many refinements (4)
+INFLATIONS=(1 2) # how many inflations (4)
+MAX_INFLATION=$(echo "${INFLATIONS[*]}" | sort -nr | head -n1 | cut -d ' ' -f 1) # max inflation factor
 
 # Parse CLI options
 while getopts ":i:l:m1:m2:s1:s2:a:p:r:f:o:c1:c3:b:v:d:q:c:" o; do
@@ -213,7 +213,7 @@ if [ ! -z "${BUNDLE_ONLY}" ]; then
        if [ "${METHOD_1D}" = "min" ]; then
           $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", -1, \"min\", 0, ${FORCE}, true)" 
        elif [ "${METHOD_1D}" = "angle" ]; then
-          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true, $MAX_INFLATION)"  
+          $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true, ${MAX_INFLATION})"
        else
           $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true)"  
        fi
@@ -262,7 +262,7 @@ if [ ! -z "${BUNDLE_ONLY}" ]; then
               if [ "${VR}" = "true" ]; then
                 echo "\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${ref}.swc\""
 
-                  $BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${ref}.swc\", false,     0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")"
+$BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${ref}.swc\", false,     0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")"
 #                gdb -ex=r --args $BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d_ref_${ref}.swc\", false, 0.5, true, 8, 0, true, $inflation, \"$METHOD_3D\", \"$segLength3D\")"
                 fail "$ERROR_CODE"
               else

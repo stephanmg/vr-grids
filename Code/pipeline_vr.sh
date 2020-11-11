@@ -80,7 +80,7 @@ esac
 # actual parameters and options
 FILE_PATTERN= # input files matching FILE_PATTERN
 FOLDERNAME= # output folder where grid files are written to
-segLength1D="8" # desired segment length in 1d structure
+segLength1D="4" # desired segment length in 1d structure
 segLength3D="-1" # desired segment length in 3d st ructure
 CREATE_3D=true # indicate that 3d meshes should be generated
 CREATE_1D=true # indicate that 1d meshes should be generated
@@ -98,6 +98,7 @@ BUNDLE_ONLY=false # if true, then only bundle .vrn file is created, no geometrie
 REFINEMENTS=(1 4) # how many refinements (4)
 INFLATIONS=(1 2) # how many inflations (4)
 MAX_INFLATION=$(echo "${INFLATIONS[*]}" | sort -nr | head -n1 | cut -d ' ' -f 1) # max inflation factor
+COPY_STATISTICS=false # copy statistics or not
 
 # Parse CLI options
 while getopts ":i:l:m1:m2:s1:s2:a:p:r:f:o:c1:c3:b:v:d:q:c:" o; do
@@ -218,10 +219,12 @@ if [ ! -z "${BUNDLE_ONLY}" ]; then
           $BINARY -call "test_import_swc_and_regularize(\"${FILENAME}_collapsed_split_and_smoothed.swc\", \"$segLength1D\", \"$METHOD_1D\", 0, ${FORCE}, true)"  
        fi
        check_exit $? >&3
-    
+
        cp new_strategy.swc "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_1d.swc"
+      if [ "${COPY_STATISTICS}" = "true" ]; then
        cp new_strategy_statistics.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_NEW.csv"
        cp statistics_edges_original.csv "${FOLDERNAME}/${FILENAME}/${FILENAME}_statistics_OLD.csv"
+      fi
        check_exit $? >&3
        
        # Refining
@@ -249,6 +252,12 @@ if [ ! -z "${BUNDLE_ONLY}" ]; then
            numRef=$(($numRef+1))
          done
          check_exit $? >&3
+         if [ ! -f "new_strategy.swc" ]; then
+            echo "Cannot proceed - unknown error"
+            exit 2
+         fi
+         rm new_strategy.swc
+         rm new_strategy.ugx
        fi
      fi
       
@@ -270,6 +279,12 @@ $BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength
               fi
               check_exit $? >&3
               echo "Copying files..."
+
+             if [ ! -f "after_selecting_boundary_elements.ugx" ]; then
+               echo "Cannot proceed - unknown error"
+               exit 2
+             fi
+
               cp after_selecting_boundary_elements_tris.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_tris_x${inflation}_ref_${ref}.ugx"
               cp after_selecting_boundary_elements.ugx "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x${inflation}_ref_${ref}.ugx"
             if [ "${REMOVE_ATTACHMENTS}" = "true" ]; then
@@ -277,6 +292,8 @@ $BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength
                 sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x${inflation}_ref_${ref}.ugx" > "${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength=${segLength1D}_3d_x${inflation}_ref_${ref}_wo_attachments.ugx"
               fi
           fi
+            rm after_selecting_boundary_elements_tris.ugx
+            rm after_selecting_boundary_elements.ugx
         done
       done
    fi
@@ -298,7 +315,7 @@ cat << EOF > ${FOLDERNAME}/${FILENAME}/MetaInfo.json
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5_ref_0.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
            ]
          },
-         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_1.ugx", "description": "1d mesh coarse mesh", "refinement": "1" ,
+         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_1.ugx", "description": "1d mesh coarse mesh", "refinement": "1",
            "inflations" : [
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1_ref_1.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2_ref_1.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
@@ -307,7 +324,7 @@ cat << EOF > ${FOLDERNAME}/${FILENAME}/MetaInfo.json
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5_ref_1.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
            ]
          },
-         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_2.ugx", "description": "1d mesh coarse mesh", "refinement": "1" ,
+         { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_2.ugx", "description": "1d mesh coarse mesh", "refinement": "2",
            "inflations" : [
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1_ref_2.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2_ref_2.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
@@ -316,7 +333,7 @@ cat << EOF > ${FOLDERNAME}/${FILENAME}/MetaInfo.json
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5_ref_2.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
            ]
          },
-       { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_3.ugx", "description": "1d mesh coarse mesh", "refinement": "1" ,
+       { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_3.ugx", "description": "1d mesh coarse mesh", "refinement": "3",
            "inflations" : [
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1_ref_3.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2_ref_3.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
@@ -325,7 +342,7 @@ cat << EOF > ${FOLDERNAME}/${FILENAME}/MetaInfo.json
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5_ref_3.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
            ]
          },
-       { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_4.ugx", "description": "1d mesh coarse mesh", "refinement": "1" ,
+       { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_4.ugx", "description": "1d mesh coarse mesh", "refinement": "4",
            "inflations" : [
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1_ref_4.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2_ref_4.ugx", "description": "2d surface mesh", "inflation" : "2.0" },

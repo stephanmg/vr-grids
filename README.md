@@ -27,10 +27,11 @@ until a more convenient location in a Cloud storage has been decided by the team
 
 ### Installation instructions
 
-1. Clone all the repositories (see above) with Git and specify the following branches
+1. Clone all the repositories (see above) with Git and specify the following branches or download them manually from Github:
 - ug4: master
 - neuro_collection: master
 - vr-grids: experimental
+- neuromorpho: master (optional)
 
 2. Follow installation instructions for *ug4* on [here](https://github.com/ug4/ughub) 
 with the plugin *neuro_collection* installed and enabled from [there](https://github.com/NeuroBox/neuro_collection).
@@ -42,6 +43,8 @@ Windows users need a valid installation of Bash, i.e. either activate WSL or ins
 4. Optinal use the neuromorpho REST API wrapper to download morphologiges from the NeuroMorpho.org database.
 
 Clone the repository at https://github.com/NeuroBox3D/neuromorpho
+
+Follow installation instructions in the repository's README above
 
 ### Usage 
 

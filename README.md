@@ -55,7 +55,7 @@ Currently a VRL-Studio project is developed and found [here](https://github.com/
 
 2. Use the `pipeline_vr.sh` scripts to create geometries
 
-#### Usage
+#### Example
 `pipeline_vr.sh -i <INPUT_PATTERN> -o <OUTPUT_FOLDER> -s1 <SEGMENT_LENGTH_1D> [-c <BUNDLE>]
 			 [-s2 <SEGMENT_LENGTH_3D>] [-c1 <CREATE_1D>] [-c3 <CREATE_3D>] [-d <DEBUG>] [-q <QUIET>]
 			 [-m1 <METHOD_1D>] [-m2 <METHOD_3D>] [-a <REMOVE_ATTACHMENTS>] [-v <FOR_VR>]

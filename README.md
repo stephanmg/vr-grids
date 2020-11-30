@@ -152,4 +152,3 @@ uniform edge length distribution.
 of the original and regularized 1D meshes.
 - `remove_attachments.sh`: Removes attachments if they might not be readable by ProMesh
 
-[![License: Artistic-2.0](https://img.shields.io/badge/License-Artistic%202.0-0298c3.svg)](https://opensource.org/licenses/Artistic-2.0)

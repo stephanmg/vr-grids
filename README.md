@@ -17,14 +17,14 @@ until a more convenient location in a Cloud storage has been decided by the team
 ## HOWTO generate grids
 
 ### Prerequisites
-- Git (Optional)
+- Git
+- Python
 - Bash, see WSL or Cygwin for Windows
 - ug4, see [ughub](https://github.com/ug4/ughub) 
 - neuro_collection plugin , see [NeuroBox3D](https://github.com/NeuroBox/neuro_collection)
 
-- vr-grids, see [vr-grids](https://github.com/stephanmg/vr-grids) (optional)
+- vr-grids, see [vr-grids](https://github.com/stephanmg/vr-grids) 
 - neuromorpho (optional), see [neuromorpho](https://github.com/NeuroBox3D/neuromorpho)
-- Python (optional)
 
 ### Installation instructions
 
@@ -102,7 +102,7 @@ for regularization.
 Usually it suffices to keep the default parameters (Which are shown above explicitly) and invoke the following to achieve the same as above.
 
 
-### Database and cell requirements
+#### Database and cell requirements
 Cells will be packaged into a *.vrn* file if and only if all geometries pass the automatic geometry consistency checks.
 
 The 1D cells (SWC) respectively the cell topologies from *NeuroMorpho.org* need to fulfill the following conditions:

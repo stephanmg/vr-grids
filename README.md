@@ -47,7 +47,7 @@ make
 4. Acquire the VR mesh generation pipeline scripts: 
 
 Clone the vr-grids repository from [here](https://github.com/stephanmg/vr-grids).
-Navigate to the folder `Code/Scripts/` and use the script `pipeline.sh`.
+Navigate to the folder `Code and use the script `pipeline.sh`.
 
 5. (Optinal) use the neuromorpho REST API wrapper to download morphologiges from the NeuroMorpho.org database.
 

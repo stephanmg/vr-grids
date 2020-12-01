@@ -51,7 +51,8 @@ Follow the installation instructions [here](https://github.com/ug4/ughub) and in
 
 5. Acquire the VR mesh generation pipeline scripts: 
 
-Either clone the vr-grids repository from [here](https://github.com/stephanmg/vr-grids) or download the `pipeline_vr.sh` scripts from this repository's `Code` folder.
+Either clone the vr-grids repository from [here](https://github.com/stephanmg/vr-grids) or download the `pipeline_vr.sh` scripts from this repository's `Code` folder:
+
 `git clone https://github.com/stephanmg/vr-grid.git`.
 
 Navigate to the folder `Code` and use the script `pipeline_vr.sh`. The next step can be skipped if you manually download a SWC file from the NeuroMorpho.org database.

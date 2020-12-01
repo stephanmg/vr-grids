@@ -28,35 +28,35 @@ until a more convenient location in a Cloud storage has been decided by the team
 
 ### Installation instructions
 
-Attention: _Windows_ users need a valid installation of Bash, i.e. either by activatiing WSL on Windows or install the Cygwin environment on Windows! OSX and Linux derivates should come with a preinstalled Bash or Sh variant.
+Attention: _Windows_ users need a valid installation of Bash, i.e. either by activatiing WSL on Windows or install the Cygwin environment on Windows! OSX and Linux derivates should come with a preinstalled Bash or Sh variant. 
 
 1. Check that Python is installed:
-Issue in a terminal (Bash or Sh): `command -v python`. If Python is available it will report the path to the Python binary.
+Issue in a terminal (Bash or Sh): `command -v python`. If Python is available it will report the path to the Python binary. Likewise use `command -v git` to check if Git is available on your system. If you do not meet these prerequisites, install them for your operating system (OS).
 
 2. Clone the `ughub` repository from the location above: `https://github.com/ug4/ughub.git` to install ug4.
 
-After cloning (Or manually downloading the ZIP archive of the repository via Github's website) the repository to your local hard drive, follow precisely the installation instructions detailed in the *ug4* repository [here](https://github.com/ug4/ughub) in the README.md file on the repository's landing page matching your operating system (OS).
+After cloning (Or manually downloading the ZIP archive of the repository via Github's website) the repository to your local hard drive, follow precisely the installation instructions detailed in the *ug4* repository [here](https://github.com/ug4/ughub) in the README.md file on the repository's landing page matching your OS.
 
-3. Install additional mesh generation plugin (neuro_collection):
+3. Install the mesh generation plugin (neuro_collection):
 
-Follow the installation instructions [here](https://github.com/ug4/ughub) to install the additional *neuro_collection* plugin required for mesh generation via:
+Follow the installation instructions [here](https://github.com/ug4/ughub) to install the additional ug4 plugin *neuro_collection* which is required for mesh generation via:
 `ughub install neuro_collection`
 
-4. Rebuild ug4 with the *neuro_collection* plugin enabled:
-`cmake -Dneuro_collection=ON
+4. Build ug4 with the *neuro_collection* plugin enabled:
+`cmake -Dneuro_collection=ON -DENABLE_ALL_PLUGINS
 make
 `
 
 5. Acquire the VR mesh generation pipeline scripts: 
 
-Clone the vr-grids repository from [here](https://github.com/stephanmg/vr-grids).
-Navigate to the folder `Code and use the script `pipeline.sh`.
+Either clone the vr-grids repository from [here](https://github.com/stephanmg/vr-grids) or download the `pipeline_vr.sh` scripts from this repository's `Code` folder.
+Navigate to the folder `Code` and use the script `pipeline_vr.sh`. The next step can be skipped if you manually download a SWC file from the NeuroMorpho.org database.
 
-6. (Optinal) use the neuromorpho REST API wrapper to download morphologiges from the NeuroMorpho.org database.
+6. (Optional) use the neuromorpho REST API wrapper to download morphologies from the NeuroMorpho.org database.
 
 Clone the repository at https://github.com/NeuroBox3D/neuromorpho
 
-Follow installation instructions in the repository's README above
+Follow installation instructions in the repository's README.md from above
 
 7. Invoke the VR pipeline script to generate a mesh via:
 

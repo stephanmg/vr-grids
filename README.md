@@ -46,7 +46,7 @@ Follow the installation instructions [here](https://github.com/ug4/ughub) and in
 
 4. Build ug4 with the *neuro_collection* plugin enabled for mesh generation:
 `cmake -Dneuro_collection=ON -DENABLE_ALL_PLUGINS
-make
+&& make
 `
 
 5. Acquire the VR mesh generation pipeline scripts: 

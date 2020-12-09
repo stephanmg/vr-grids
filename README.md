@@ -42,6 +42,7 @@ After cloning (Or manually downloading the ZIP archive of the repository via Git
 3. Install the mesh generation plugin (neuro_collection):
 
 Follow the installation instructions [here](https://github.com/ug4/ughub) and install the additional ug4 plugin *neuro_collection* which is required for mesh generation by:
+`ughub addsource neurobox https://github.com/NeuroBox3D/neurobox-packages.git`
 `ughub install neuro_collection`
 
 4. Build ug4 with the *neuro_collection* plugin enabled for mesh generation:

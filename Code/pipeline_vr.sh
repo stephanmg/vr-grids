@@ -351,7 +351,9 @@ cat << EOF > ${FOLDERNAME}/${FILENAME}/MetaInfo.json
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5_ref_4.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
            ]
       }
-      ]
+      ],
+      "date" : $(date +%s),
+      "revision" : $(git rev-parse HEAD)
 }
 EOF
 

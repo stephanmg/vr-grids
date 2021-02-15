@@ -350,6 +350,24 @@ cat << EOF > ${FOLDERNAME}/${FILENAME}/MetaInfo.json
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x4_ref_4.ugx", "description": "2d surface mesh", "inflation" : "4.0" },
                { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5_ref_4.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
            ]
+      },
+       { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_5.ugx", "description": "1d mesh coarse mesh", "refinement": "5",
+           "inflations" : [
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1_ref_5.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2_ref_5.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x3_ref_5.ugx", "description": "2d surface mesh", "inflation" : "3.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x4_ref_5.ugx", "description": "2d surface mesh", "inflation" : "4.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5_ref_5.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
+           ]
+      },
+       { "name" : "${FILENAME}_segLength=${segLength1D}_1d_ref_6.ugx", "description": "1d mesh coarse mesh", "refinement": "6",
+           "inflations" : [
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x1_ref_6.ugx", "description": "2d surface mesh", "inflation" : "1.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x2_ref_6.ugx", "description": "2d surface mesh", "inflation" : "2.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x3_ref_6.ugx", "description": "2d surface mesh", "inflation" : "3.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x4_ref_6.ugx", "description": "2d surface mesh", "inflation" : "4.0" },
+               { "name" : "${FILENAME}_segLength=${segLength1D}_3d_tris_x5_ref_6.ugx", "description": "2d surface mesh", "inflation" : "5.0" }
+           ]
       }
       ]
 }

@@ -300,7 +300,7 @@ $BINARY -call "${SCRIPT_3D_VR}(\"${FOLDERNAME}/${FILENAME}/${FILENAME}_segLength
 done
 fi
 
-## bundle
+## bundle (TODO: wrap the heredoc into a for loop body to avoid string duplication)
 for file in $FILE_PATTERN; do
  FILENAME=${file%*.swc}
 cat << EOF > ${FOLDERNAME}/${FILENAME}/MetaInfo.json

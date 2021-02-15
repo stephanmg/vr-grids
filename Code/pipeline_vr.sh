@@ -95,8 +95,8 @@ VR=true # indicate that VR use-case is desired (default) or ug4 use-case
 QUIET=false # output only warnings
 DEBUG=true # output all warnings and debug statements 
 BUNDLE_ONLY=false # if true, then only bundle .vrn file is created, no geometries are generated
-REFINEMENTS=(1 4) # how many refinements (4)
-INFLATIONS=(1 2) # how many inflations (4)
+REFINEMENTS=(1 4 8 16 32) # how many refinements (4)
+INFLATIONS=(1 2 3 4 5) # how many inflations (4)
 MAX_INFLATION=$(echo "${INFLATIONS[*]}" | sort -nr | head -n1 | cut -d ' ' -f 1) # max inflation factor
 COPY_STATISTICS=false # copy statistics or not
 

@@ -74,6 +74,15 @@ fail() {
       9)
       echo "No permissble render vector could be found."
       ;;
+      10)
+      echo "High-diameter variance detected."
+      ;;
+      11)
+      echo "Branching point clustering too closely together."
+      ;;
+      12)
+      echo "Small or negative radius detected."
+      ;;
 esac
 }
 

@@ -4,18 +4,18 @@
 ##  -  d256617e50ee98ab12756347df6b894be9a96c20 of neuro_collection (meshFixes)
 ##  -  193dbb5374ec1e9ad783c93cb7dc8b017c66237b of neuro_collection (fixMapping)
 
-## mesh generation parameters
+## mesh generation parameters (do change)
 INFLATIONS=1
 REFINEMENTS=1
 SEGMENT_LENGTH=6
 FILENAME=single_branch.swc
+BINARY=../bin/ugshell 
 
-## ug specific configuration
+## fixed ug configuration parameters (do not change)
+SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var 
 ug_load_script("ug_util.lua")
 ug_load_script("util/load_balancing_util.lua")
 InitUG(3, AlgebraType("CPU", 1))
-SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var 
-BINARY=../bin/ugshell
 
 # create inflations of 3d mesh
 for (( inflation=1; ref < ${INFLATIONS}; ref++)); do 

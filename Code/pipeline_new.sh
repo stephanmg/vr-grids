@@ -29,12 +29,12 @@ for (( inflation=1; ref < ${INFLATIONS}; ref++)); do
    # create refinements of the 3d meshes and write corresponding 1d meshes
    axialMarker = NeuriteAxialRefinementMarker(dom)
    refiner = HangingNodeDomainRefiner(dom)
-   for (( ref=1;  ref < ${REFINEMETNS}; ref++)); do
+   for (( ref=0;  ref < ${REFINEMENTS}; ref++)); do
+      SaveGrid(dom:grid(), ${FILENAME%*.swc}_3d_${ref}.ugx)
+      Write3dMeshTo1d(dom, $ref)
+      mv 1dmesh.ugx ${FILENAME%*.swc}_1d_ref_${ref}.ugx
       axialMarker:mark(refiner)
       refiner:refine()
-      SaveGrid(dom:grid(), ${FILENAME%*.swc}_3d_${ref}.ugx)
-      Write3dMeshTo1d(dom)
-      mv 1dmesh.ugx ${FILENAME%*.swc}_1d_ref_${ref}.ugx
    done
 done
 

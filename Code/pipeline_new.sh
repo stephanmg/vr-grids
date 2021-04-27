@@ -6,7 +6,7 @@
 
 ## mesh generation parameters (do change)
 INFLATIONS=1
-REFINEMENTS=1
+REFINEMENTS=2
 SEGMENT_LENGTH=6
 FILENAME=cylinder
 BINARY=/home/stephan/Code/git/ug4/bin/ugshell 
@@ -23,21 +23,30 @@ for (( inflation=1; ref < ${INFLATIONS}; ref++)); do
 
    # create the 3d refinements and write the 1d meshes (Lua script)
 cat << EOF > ${FOLDERNAME}/geom.lua
-   ug_load_script("ug_util.lua")
-   ug_load_script("util/load_balancing_util.lua")
-   InitUG(3, AlgebraType("CPU", 1))
-   dom = Domain()
-   dom:create_additional_subset_handler("projSH")
-   LoadDomain(dom, "after_selecting_boundary_elements.ugx")
-   -- create refinements of the 3d meshes and write corresponding 1d meshes
-   axialMarker = NeuriteAxialRefinementMarker(dom)
-   refiner = HangingNodeDomainRefiner(dom)
-   for ref=0, $REFINEMENTS do
-      SaveGrid(dom:grid(), "example/${FILENAME%*.swc}_3d_x${inflation}_ref_" .. ref .. ".ugx")
-      Write3dMeshTo1d(dom, ref)
-      axialMarker:mark(refiner)
-      refiner:refine()
-   end
+-- init ug
+ug_load_script("ug_util.lua")
+ug_load_script("util/load_balancing_util.lua")
+InitUG(3, AlgebraType("CPU", 1))
+
+-- load domain
+dom = Domain()
+dom:create_additional_subset_handler("projSH")
+LoadDomain(dom, "after_selecting_boundary_elements_with_projector.ugx")
+
+-- create refinements of the 3d meshes
+axialMarker = NeuriteAxialRefinementMarker(dom)
+refiner = HangingNodeDomainRefiner(dom)
+for ref=0, $((REFINEMENTS-1)) do
+   SaveGridLevelToFile(dom:grid(), dom:subset_handler(), ref, "${FOLDERNAME}/${FILENAME%*.swc}_3d_x${inflation}_ref_" .. ref .. ".ugx")
+   axialMarker:mark(refiner)
+   refiner:refine()
+end
+
+-- create 1d meshes from 3d meshes
+AddMappingAttachmentHandlerToGrid(dom)
+for ref=0, $((REFINEMENTS-1)) do
+   Write3dMeshTo1d(dom, ref)
+end
 EOF
    # execute ugshell
    $BINARY -ex ${FOLDERNAME}/geom.lua
@@ -45,6 +54,11 @@ EOF
    # copy 1d meshes to output folder
    for (( ref=0; ref < ${REFINEMENTS}; ref++)); do
       cp 1dmesh_${ref}.ugx ${FOLDERNAME}/${FILENAME%*.swc}_1d_ref_${ref}.ugx
+   done
+
+   # remove attachments
+   for (( ref=0; ref < ${REFINEMENTS}; ref++)); do
+      sed '/.*vertex_attachment.*/d' "${FOLDERNAME}/${FILENAME%*.swc}_3d_x${inflation}_ref_${ref}.ugx" > "${FOLDERNAME}/${FILENAME%*.swc}_3d_x${inflation}_ref_${ref}_wo_attachments.ugx" 
    done
 done
 
@@ -89,5 +103,5 @@ cat << EOF >> ${FOLDERNAME}/MetaInfo.json
 EOF
 
 cd ${FOLDERNAME}
-zip -j -r ${FILENAME}.vrn MetaInfo.json *ugx
+zip -j -x "*_wo_attachments.ugx" -r ${FILENAME}.vrn MetaInfo.json *ugx
 cd ../../

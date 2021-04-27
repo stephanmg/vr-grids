@@ -11,38 +11,41 @@ SEGMENT_LENGTH=6
 FILENAME=cylinder
 BINARY=/home/stephan/Code/git/ug4/bin/ugshell 
 FOLDERNAME=example
-
-## fixed ug configuration parameters (do not change)
 SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var 
-ug_load_script("ug_util.lua")
-ug_load_script("util/load_balancing_util.lua")
-InitUG(3, AlgebraType("CPU", 1))
 
-mkdir -p example
+## create outout folder
+mkdir -p "${FOLDERNAME}"
 
 # create inflations of 3d mesh
 for (( inflation=1; ref < ${INFLATIONS}; ref++)); do 
    # create the 3d coarse mesh
-   $BINARY -call "${SCRIPT_3D_VR}(\"${FILENAME}.swc\", false, 0.3, true, $SEGMENT_LENGTH, 0, true, $INFLATION, \"user\", $SEGMENT_LENGTH)"$
-   mv after_selecting_boundary_elements.ugx example/${FILENAME%*.swc}_3d.ugx
-   mv after_selecting_boundary_elements_tri.ugx example/${FILENAME%*.swc}_3d_tris.ugx
+   $BINARY -call "${SCRIPT_3D_VR}(\"${FILENAME}.swc\", false, 0.3, true, $SEGMENT_LENGTH, 0, true, $inflation, \"user\", $SEGMENT_LENGTH)"
 
-   ## TODO: translate this section to Lua
+   # create the 3d refinements and write the 1d meshes (Lua script)
+cat << EOF > ${FOLDERNAME}/geom.lua
+   ug_load_script("ug_util.lua")
+   ug_load_script("util/load_balancing_util.lua")
+   InitUG(3, AlgebraType("CPU", 1))
    dom = Domain()
    dom:create_additional_subset_handler("projSH")
    LoadDomain(dom, "after_selecting_boundary_elements.ugx")
-
-   # create refinements of the 3d meshes and write corresponding 1d meshes
+   -- create refinements of the 3d meshes and write corresponding 1d meshes
    axialMarker = NeuriteAxialRefinementMarker(dom)
    refiner = HangingNodeDomainRefiner(dom)
-   for (( ref=0;  ref < ${REFINEMENTS}; ref++)); do
-      SaveGrid(dom:grid(), example/${FILENAME%*.swc}_3d_x${inflation}_ref_${ref}.ugx)
-      Write3dMeshTo1d(dom, $ref)
-      mv 1dmesh.ugx example/${FILENAME%*.swc}_1d_ref_${ref}.ugx
+   for ref=0, $REFINEMENTS do
+      SaveGrid(dom:grid(), "example/${FILENAME%*.swc}_3d_x${inflation}_ref_" .. ref .. ".ugx")
+      Write3dMeshTo1d(dom, ref)
       axialMarker:mark(refiner)
       refiner:refine()
+   end
+EOF
+   # execute ugshell
+   $BINARY -ex ${FOLDERNAME}/geom.lua
+
+   # copy 1d meshes to output folder
+   for (( ref=0; ref < ${REFINEMENTS}; ref++)); do
+      cp 1dmesh_${ref}.ugx ${FOLDERNAME}/${FILENAME%*.swc}_1d_ref_${ref}.ugx
    done
-   ## TODO: translate this section to Lua
 done
 
 cat << EOF > ${FOLDERNAME}/MetaInfo.json
@@ -80,11 +83,11 @@ EOF
 fi
 
 done
-cat << EOF >> ${FOLDERNAME}/${FILENAME}/MetaInfo.json
+cat << EOF >> ${FOLDERNAME}/MetaInfo.json
       ]
 }
 EOF
 
 cd ${FOLDERNAME}
-zip -j -x "*_wo_attachments.ugx" -x "*_3d_x*.ugx" -r ${FILENAME}.vrn MetaInfo.json *ugx
+zip -j -r ${FILENAME}.vrn MetaInfo.json *ugx
 cd ../../

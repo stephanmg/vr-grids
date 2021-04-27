@@ -8,8 +8,8 @@
 INFLATIONS=1
 REFINEMENTS=1
 SEGMENT_LENGTH=6
-FILENAME=single_branch
-BINARY=../bin/ugshell 
+FILENAME=cylinder
+BINARY=/home/stephan/Code/git/ug4/bin/ugshell 
 FOLDERNAME=example
 
 ## fixed ug configuration parameters (do not change)
@@ -24,11 +24,13 @@ mkdir -p example
 for (( inflation=1; ref < ${INFLATIONS}; ref++)); do 
    # create the 3d coarse mesh
    $BINARY -call "${SCRIPT_3D_VR}(\"${FILENAME}.swc\", false, 0.3, true, $SEGMENT_LENGTH, 0, true, $INFLATION, \"user\", $SEGMENT_LENGTH)"$
+   mv after_selecting_boundary_elements.ugx example/${FILENAME%*.swc}_3d.ugx
+   mv after_selecting_boundary_elements_tri.ugx example/${FILENAME%*.swc}_3d_tris.ugx
+
+   ## TODO: translate this section to Lua
    dom = Domain()
    dom:create_additional_subset_handler("projSH")
    LoadDomain(dom, "after_selecting_boundary_elements.ugx")
-   mv after_selecting_boundary_elements.ugx example/${FILENAME%*.swc}_3d.ugx
-   mv after_selecting_boundary_elements_tri.ugx example/${FILENAME%*.swc}_3d_tris.ugx
 
    # create refinements of the 3d meshes and write corresponding 1d meshes
    axialMarker = NeuriteAxialRefinementMarker(dom)
@@ -40,6 +42,7 @@ for (( inflation=1; ref < ${INFLATIONS}; ref++)); do
       axialMarker:mark(refiner)
       refiner:refine()
    done
+   ## TODO: translate this section to Lua
 done
 
 cat << EOF > ${FOLDERNAME}/MetaInfo.json

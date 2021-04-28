@@ -3,6 +3,10 @@
 ##  -  7b6a6e25ccf4f5ea211ab297d08e6a40ec100351 of ugcore (master)
 ##  -  d256617e50ee98ab12756347df6b894be9a96c20 of neuro_collection (meshFixes)
 ##  -  193dbb5374ec1e9ad783c93cb7dc8b017c66237b of neuro_collection (fixMapping)
+## 
+## relies on the following new functionalities in ug4/neuro_collection: 
+##    NeuriteAxialRefinementMarker and MappingAttachmentHandler for 3d resp.
+##    Write3dMeshTo1d and a correctly defined mapping for 1d mesh generation
 
 ## mesh generation parameters (do change)
 INFLATIONS=1

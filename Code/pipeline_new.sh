@@ -11,6 +11,8 @@ SEGMENT_LENGTH=6
 SWC_FILE=cylinder
 BINARY=/home/stephan/Code/git/ug4/bin/ugshell 
 OUTPUT_FOLDER=example
+
+## fixed parameters (do not change)
 SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var 
 
 ## create outout folder

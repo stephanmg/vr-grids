@@ -64,7 +64,7 @@ EOF
 
    # remove attachments
    for (( ref=0; ref < ${REFINEMENTS}; ref++)); do
-      sed '/.*vertex_attachment.*/d' "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_${ref}.ugx" > "${FOLDERNAME}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_${ref}_wo_attachments.ugx" 
+      sed '/.*vertex_attachment.*/d' "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_${ref}.ugx" > "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_${ref}_wo_attachments.ugx" 
    done
 done
 

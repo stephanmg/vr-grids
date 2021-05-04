@@ -10,8 +10,8 @@
 
 ## mesh generation parameters (do change)
 INFLATIONS=1
-REFINEMENTS=2
-SEGMENT_LENGTH=4
+REFINEMENTS=3
+SEGMENT_LENGTH=6
 #SWC_FILE=single_branch
 #SWC_FILE=0-2a.CNG
 SWC_FILE=AR-1-20-04-A_mod_iteration_3
@@ -28,7 +28,8 @@ mkdir -p "${OUTPUT_FOLDER}"
 for (( inflation=1; ref < ${INFLATIONS}; ref++)); do 
    # create the 3d coarse mesh
    # $BINARY -call "create_branches_from_swc(\"${SWC_FILE}.swc\", 0.3, 0)"
-   $BINARY -call "${SCRIPT_3D_VR}(\"${SWC_FILE}.swc\", false, 0.3, true, $SEGMENT_LENGTH, 0, true, $inflation, \"user\", $SEGMENT_LENGTH)"
+   # $BINARY -call "${SCRIPT_3D_VR}(\"${SWC_FILE}.swc\", false, 0.3, true, $SEGMENT_LENGTH, 0, true, $inflation, \"user\", $SEGMENT_LENGTH)"
+   $BINARY -call "${SCRIPT_3D_VR}(\"${SWC_FILE}.swc\", false, 0.3, true, $SEGMENT_LENGTH, 0, true, $inflation, \"identity\", $SEGMENT_LENGTH)"
 
    # create the 3d refinements and write the 1d meshes (Lua script)
 cat << EOF > ${OUTPUT_FOLDER}/geom.lua
@@ -48,10 +49,10 @@ LoadDomain(dom, "after_selecting_boundary_elements_with_projector.ugx")
 axialMarker = NeuriteAxialRefinementMarker(dom)
 refiner = HangingNodeDomainRefiner(dom)
 offset = 0
-AddMappingAttachmentHandlerToGrid(dom)
+--AddMappingAttachmentHandlerToGrid(dom)
 for ref=0, $((REFINEMENTS-1)) do
    SaveGridLevelToFile(dom:grid(), dom:subset_handler(), ref, "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_" .. ref .. ".ugx")
-   -- axialMarker:mark_exclusive_one(refiner, "Soma")
+   --axialMarker:mark_exclusive_one(refiner, "Soma")
    axialMarker:mark(refiner)
    if not pcall(function() refiner:refine() end) then
       offset=$((REFINEMENTS-1))-ref
@@ -126,5 +127,5 @@ cat << EOF >> ${OUTPUT_FOLDER}/MetaInfo.json
 EOF
 
 cd ${OUTPUT_FOLDER}
-zip -j -x "*_wo_attachments.ugx" -r ${SWC_FILE}.vrn MetaInfo.json *ugx
+zip -9 -j -x "*_wo_attachments.ugx" -r ${SWC_FILE}.vrn MetaInfo.json *ugx
 cd ../../

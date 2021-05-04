@@ -11,10 +11,12 @@
 ## mesh generation parameters (do change)
 INFLATIONS=1
 REFINEMENTS=2
-SEGMENT_LENGTH=6
-SWC_FILE=cylinder
+SEGMENT_LENGTH=4
+#SWC_FILE=single_branch
+#SWC_FILE=0-2a.CNG
+SWC_FILE=AR-1-20-04-A_mod_iteration_3
 BINARY=/home/stephan/Code/git/ug4/bin/ugshell 
-OUTPUT_FOLDER=example
+OUTPUT_FOLDER=example18
 
 ## fixed parameters (do not change)
 SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var 
@@ -25,6 +27,7 @@ mkdir -p "${OUTPUT_FOLDER}"
 # create inflations of 3d mesh
 for (( inflation=1; ref < ${INFLATIONS}; ref++)); do 
    # create the 3d coarse mesh
+   # $BINARY -call "create_branches_from_swc(\"${SWC_FILE}.swc\", 0.3, 0)"
    $BINARY -call "${SCRIPT_3D_VR}(\"${SWC_FILE}.swc\", false, 0.3, true, $SEGMENT_LENGTH, 0, true, $inflation, \"user\", $SEGMENT_LENGTH)"
 
    # create the 3d refinements and write the 1d meshes (Lua script)
@@ -37,20 +40,28 @@ InitUG(3, AlgebraType("CPU", 1))
 -- load domain
 dom = Domain()
 dom:create_additional_subset_handler("projSH")
+-- a test
+--LoadDomain(dom, "imported_y_structure.ugx")
 LoadDomain(dom, "after_selecting_boundary_elements_with_projector.ugx")
 
 -- create refinements of the 3d meshes
 axialMarker = NeuriteAxialRefinementMarker(dom)
 refiner = HangingNodeDomainRefiner(dom)
+offset = 0
+AddMappingAttachmentHandlerToGrid(dom)
 for ref=0, $((REFINEMENTS-1)) do
    SaveGridLevelToFile(dom:grid(), dom:subset_handler(), ref, "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_" .. ref .. ".ugx")
+   -- axialMarker:mark_exclusive_one(refiner, "Soma")
    axialMarker:mark(refiner)
-   refiner:refine()
+   if not pcall(function() refiner:refine() end) then
+      offset=$((REFINEMENTS-1))-ref
+      break
+   end
 end
 
 -- create 1d meshes from 3d meshes
-AddMappingAttachmentHandlerToGrid(dom)
-for ref=0, $((REFINEMENTS-1)) do
+--AddMappingAttachmentHandlerToGrid(dom)
+for ref=0, $((REFINEMENTS-1))-offset do
    Write3dMeshTo1d(dom, ref)
 end
 EOF
@@ -60,6 +71,12 @@ EOF
    # copy 1d meshes to output folder
    for (( ref=0; ref < ${REFINEMENTS}; ref++)); do
       cp 1dmesh_${ref}.ugx ${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_1d_ref_${ref}.ugx
+   done
+   
+   # post process mesh for VR 
+   for (( ref=0; ref < ${REFINEMENTS}; ref++)); do
+      $BINARY -call "PostProcessMesh(\"${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_${ref}.ugx\")"
+      mv test_new_tri.ugx "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_${ref}.ugx"
    done
 
    # remove attachments
@@ -78,7 +95,7 @@ cat << EOF >> ${OUTPUT_FOLDER}/MetaInfo.json
          { "name" : "${SWC_FILE}_segLength=${segLength1D}_1d_ref_${ref}.ugx", "description": "1d mesh coarse mesh", "refinement": "$ref",
            "inflations" : [
 EOF
-for (( inflation=1; ref < $INFLATIONS; ref++)); do 
+for (( inflation=1; inflation < $INFLATIONS; inflation++)); do 
 inflation=${INFLATIONS[$idx]}
 cat << EOF >> ${OUTPUT_FOLDER}/MetaInfo.json
                { "name" : "${SWC_FILE}_segLength=${segLength1D}_3d_x${inflation}_ref_${ref}.ugx", "description": "2d surface mesh", "inflation" : "${inflation}" },
@@ -89,7 +106,7 @@ cat << EOF >> ${OUTPUT_FOLDER}/MetaInfo.json
                { "name" : "${SWC_FILE}_segLength=${segLength1D}_3d_x${inflation}_ref_${ref}.ugx", "description": "2d surface mesh", "inflation" : "${inflation}" }
 EOF
 
-lastRef=$REFINEMENTS
+lastRef=$(($REFINEMENTS-1))
 if [ "$lastRef" = "$ref" ]; then
 cat << EOF >> ${OUTPUT_FOLDER}/MetaInfo.json
            ]

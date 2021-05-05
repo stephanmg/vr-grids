@@ -15,7 +15,7 @@ REFINEMENTS=2
 SEGMENT_LENGTH=6
 SWC_FILE=single_branch
 BINARY=/home/stephan/Code/git/ug4/bin/ugshell 
-OUTPUT_FOLDER=example
+OUTPUT_FOLDER=example21
 
 ## fixed parameters (do not need to change usually)
 SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var 
@@ -51,7 +51,7 @@ AddMappingAttachmentHandlerToGrid(dom)
 
 -- axial refinements
 for ref=0, $((REFINEMENTS-1)) do
-   SaveGridLevelToFile(dom:grid(), dom:subset_handler(), ref, "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_" .. ref .. ".ugx")
+   SaveGridLevelToFile(dom:grid(), dom:subset_handler(), ref, "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_segLength=${SEGMENT_LENGTH}_3d_x${inflation}_ref_" .. ref .. ".ugx")
    -- axialMarker:mark_exclusive_one(refiner, "Soma")
    if not pcall(function(ref_) axialMarker:mark(ref_) end, refiner) then
       offset=$((REFINEMENTS-1))-ref
@@ -83,18 +83,18 @@ EOF
 
    # copy 1d meshes to output folder
    for (( ref=0; ref < ${REFINEMENTS}; ref++)); do
-      cp 1dmesh_${ref}.ugx ${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_1d_ref_${ref}.ugx
+      mv 1dmesh_${ref}.ugx "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_segLength=${SEGMENT_LENGTH}_1d_ref_${ref}.ugx"
    done
    
    # post process mesh for VR 
    for (( ref=0; ref < ${REFINEMENTS}; ref++)); do
-      $BINARY -call "PostProcessMesh(\"${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_${ref}.ugx\")"
-      mv test_new_tri.ugx "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_${ref}.ugx"
+      $BINARY -call "PostProcessMesh(\"${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_segLength=${SEGMENT_LENGTH}_3d_x${inflation}_ref_${ref}.ugx\")"
+      mv test_new_tri.ugx "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_segLength=${SEGMENT_LENGTH}_3d_x${inflation}_ref_${ref}.ugx"
    done
 
    # remove attachments for visualization in ProMesh
    for (( ref=0; ref < ${REFINEMENTS}; ref++)); do
-      sed '/.*vertex_attachment.*/d' "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_${ref}.ugx" > "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_${ref}_wo_attachments.ugx" 
+      sed '/.*vertex_attachment.*/d' "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_segLength=${SEGMENT_LENGTH}_3d_x${inflation}_ref_${ref}.ugx" > "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_segLength=${SEGLENGTH}_3d_x${inflation}_ref_${ref}_wo_attachments.ugx" 
    done
 done
 
@@ -106,18 +106,18 @@ EOF
 
 for (( ref=0;  ref < ${REFINEMENTS}; ref++)); do
 cat << EOF >> ${OUTPUT_FOLDER}/MetaInfo.json
-         { "name" : "${SWC_FILE}_segLength=${segLength1D}_1d_ref_${ref}.ugx", "description": "1d mesh coarse mesh", "refinement": "$ref",
+         { "name" : "${SWC_FILE}_segLength=${SEGMENT_LENGTH}_1d_ref_${ref}.ugx", "description": "1d mesh coarse mesh", "refinement": "$ref",
            "inflations" : [
 EOF
 for (( inflation=1; inflation < $INFLATIONS; inflation++)); do 
 inflation=${INFLATIONS[$idx]}
 cat << EOF >> ${OUTPUT_FOLDER}/MetaInfo.json
-               { "name" : "${SWC_FILE}_segLength=${segLength1D}_3d_x${inflation}_ref_${ref}.ugx", "description": "2d surface mesh", "inflation" : "${inflation}" },
+               { "name" : "${SWC_FILE}_segLength=${SEGMENT_LENGTH}_3d_x${inflation}_ref_${ref}.ugx", "description": "2d surface mesh", "inflation" : "${inflation}" },
 EOF
 done
 inflation=$INFLATIONS
 cat << EOF >> ${OUTPUT_FOLDER}/MetaInfo.json
-               { "name" : "${SWC_FILE}_segLength=${segLength1D}_3d_x${inflation}_ref_${ref}.ugx", "description": "2d surface mesh", "inflation" : "${inflation}" }
+               { "name" : "${SWC_FILE}_segLength=${SEGMENT_LENGTH}_3d_x${inflation}_ref_${ref}.ugx", "description": "2d surface mesh", "inflation" : "${inflation}" }
 EOF
 
 lastRef=$(($REFINEMENTS-1))

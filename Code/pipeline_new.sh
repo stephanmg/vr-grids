@@ -12,27 +12,24 @@
 ## mesh generation parameters (do change)
 INFLATIONS=1
 REFINEMENTS=2
-SEGMENT_LENGTH=4
-#SWC_FILE=single_branch
-SWC_FILE=0-2a.CNG
-#SWC_FILE=AR-1-20-04-A_mod_iteration_3
+SEGMENT_LENGTH=6
+SWC_FILE=single_branch
 BINARY=/home/stephan/Code/git/ug4/bin/ugshell 
-OUTPUT_FOLDER=example19
+OUTPUT_FOLDER=example
 
-## fixed parameters (do not change)
+## fixed parameters (do not need to change usually)
 SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var 
+MODE=user # or identity
 
-## create outout folder
+## create outout folder for meshes
 mkdir -p "${OUTPUT_FOLDER}"
 
 # create inflations of 3d mesh
 for (( inflation=1; ref < ${INFLATIONS}; ref++)); do 
    # create the 3d coarse mesh
-   # $BINARY -call "create_branches_from_swc(\"${SWC_FILE}.swc\", 0.3, 0)"
-    $BINARY -call "${SCRIPT_3D_VR}(\"${SWC_FILE}.swc\", false, 0.3, true, $SEGMENT_LENGTH, 0, true, $inflation, \"user\", $SEGMENT_LENGTH)"
- #  $BINARY -call "${SCRIPT_3D_VR}(\"${SWC_FILE}.swc\", false, 0.3, true, $SEGMENT_LENGTH, 0, true, $inflation, \"identity\", $SEGMENT_LENGTH)"
+   $BINARY -call "${SCRIPT_3D_VR}(\"${SWC_FILE}.swc\", false, 0.3, true, $SEGMENT_LENGTH, 0, true, $inflation, \"$MODE\", $SEGMENT_LENGTH)"
 
-   # create the 3d refinements and write the 1d meshes (Lua script)
+   # create the 3d refinements and write the 1d meshes
 cat << EOF > ${OUTPUT_FOLDER}/geom.lua
 -- init ug
 ug_load_script("ug_util.lua")
@@ -42,8 +39,6 @@ InitUG(3, AlgebraType("CPU", 1))
 -- load domain
 dom = Domain()
 dom:create_additional_subset_handler("projSH")
--- a test
---LoadDomain(dom, "imported_y_structure.ugx")
 LoadDomain(dom, "after_selecting_boundary_elements_with_projector.ugx")
 
 -- create refinements of the 3d meshes
@@ -70,16 +65,20 @@ end
 delete(axialMarker)
 for ref=offset, $((REFINEMENTS-1)) do
    refiner = GlobalDomainRefiner(dom)
-   refiner:refine()
+   if not pcall(function() refiner:refine() end) then
+      error("Global refinement #" .. $((REFINEMENTS-1))-ref .. " failed!")
+   end
 end
 
 -- create 1d meshes from 3d meshes
 for ref=0, $((REFINEMENTS-1))-offset do
-   Write3dMeshTo1d(dom, ref)
+   if not pcall(function() Write3dMeshTo1d(dom, ref) end) then
+      error("Writing refinement # " .. ref .. " of 3d mesh to 1d mesh failed!")
+   end
 end
 EOF
 
-   # execute ugshell with created meshing script
+   # execute ugshell with generated meshing script
    $BINARY -ex ${OUTPUT_FOLDER}/geom.lua
 
    # copy 1d meshes to output folder
@@ -93,12 +92,13 @@ EOF
       mv test_new_tri.ugx "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_${ref}.ugx"
    done
 
-   # remove attachments
+   # remove attachments for visualization in ProMesh
    for (( ref=0; ref < ${REFINEMENTS}; ref++)); do
       sed '/.*vertex_attachment.*/d' "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_${ref}.ugx" > "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_3d_x${inflation}_ref_${ref}_wo_attachments.ugx" 
    done
 done
 
+## bundle meshes to a .vrn archive
 cat << EOF > ${OUTPUT_FOLDER}/MetaInfo.json
 {
     "geom1d" : [

@@ -11,15 +11,15 @@
 
 ## mesh generation parameters (do change)
 INFLATIONS=1
-REFINEMENTS=2
+REFINEMENTS=4
 SEGMENT_LENGTH=6
 SWC_FILE=single_branch
 BINARY=/home/stephan/Code/git/ug4/bin/ugshell 
-OUTPUT_FOLDER=example21
+OUTPUT_FOLDER=example22
 
 ## fixed parameters (do not need to change usually)
 SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var 
-MODE=user # or identity
+MODE=identity # or identity / user
 
 ## create outout folder for meshes
 mkdir -p "${OUTPUT_FOLDER}"
@@ -47,7 +47,7 @@ refiner = HangingNodeDomainRefiner(dom)
 offset = 0
 
 -- required to propagate mapping attachments in refinements
-AddMappingAttachmentHandlerToGrid(dom)
+--AddMappingAttachmentHandlerToGrid(dom)
 
 -- axial refinements
 for ref=0, $((REFINEMENTS-1)) do

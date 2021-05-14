@@ -1,17 +1,20 @@
 #!/bin/bash
 ## tested with the following revisions:
-##  -  7b6a6e25ccf4f5ea211ab297d08e6a40ec100351 of ugcore (master)
-##  -  d256617e50ee98ab12756347df6b894be9a96c20 of neuro_collection (meshFixes)
-##  -  193dbb5374ec1e9ad783c93cb7dc8b017c66237b of neuro_collection (fixMapping)
+##  -  ugcore (master): HEAD
+##  -  neuro_collection (meshFixes): HEAD
+##  -  neuro_collection (fixMapping): HEAD 
+##  Verify: fixMapping might be merged into meshFixes for 1d mesh generation.
 ## 
-## relies on the following new functionalities in ug4/neuro_collection: 
-##    NeuriteAxialRefinementMarker and MappingAttachmentHandler for 3d resp.
-##    Write3dMeshTo1d and a correctly defined mapping for 1d mesh generation
-## refines until geometry is isotropic, then refines the geometry globally.
+##  Note: Relies on the following new functionalities in ugcore/neuro_collection: 
+##    NeuriteAxialRefinementMarker, MappingAttachmentHandler and PostProcessMesh
+##    for VR 3d mesh generation respectively Write3dMeshTo1d and the corrected
+##    mapping attachment (fixMapping) for 1d mesh generation based on the 3d mesh.
+##
+## Caveat: Refines until geometry is isotropic, then refines the geometry globally!
 
 ## mesh generation parameters (do change)
 INFLATIONS=1
-REFINEMENTS=4
+REFINEMENTS=3
 SEGMENT_LENGTH=6
 SWC_FILE=single_branch
 BINARY=/home/stephan/Code/git/ug4/bin/ugshell 

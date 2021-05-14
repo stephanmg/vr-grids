@@ -17,7 +17,7 @@ axialMarker = NeuriteAxialRefinementMarker(dom)
 refiner = HangingNodeDomainRefiner(dom)
 axialMarker:mark(refiner)
 refiner:refine()
---[[
+---[[
 axialMarker:mark(refiner)
 refiner:refine()
 axialMarker:mark(refiner)

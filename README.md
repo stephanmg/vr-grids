@@ -66,7 +66,7 @@ Follow installation instructions in the repository's README.md from above
 
 7. Invoke the VR pipeline script to generate a mesh via:
 
-`pipeline_vr.sh -i <INPUT_PATTERN> -o <OUTPUT_FOLDER>`
+`pipeline_vr.sh -i <INPUT_PATTERN> -o <OUTPUT_FOLDER> -l <SEGMENT_LENGTH> [-m <NUMBER_OF_INFLATIONS> -n <NUMBER_OF_REFINEMENTS>]`
 
 Note that `-i <INPUT_PATTERN>` specifies a SWC file name or a file glob of SWC files and `-o <OUTPUT_FOLDER>` is the output folder for generated meshes. 
 In the output folder given by the `-o` parameter, also the **VRN** bundle for Unity will be stored with the same name as the input file except for the file extension is changed to `.vrn`.

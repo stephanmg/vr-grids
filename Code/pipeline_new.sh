@@ -12,17 +12,54 @@
 ##
 ## Caveat: Refines until geometry is isotropic, then refines the geometry globally!
 
-## mesh generation parameters (do change)
+## mesh generation default parameter values
 INFLATIONS=1
-REFINEMENTS=3
+REFINEMENTS=1
 SEGMENT_LENGTH=6
-SWC_FILE=single_branch
+SWC_FILE=neuron.swc
+OUTPUT_FOLDER=example
 BINARY=/home/stephan/Code/git/ug4/bin/ugshell 
-OUTPUT_FOLDER=example22
 
-## fixed parameters (do not need to change usually)
+## fixed mesh generation parameters (do not change)
 SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var 
-MODE=identity # or identity / user
+MODE=identity
+
+## Parse CLI options
+while getopts ":i:o:n:m:l" o; do
+    case "${o}" in
+        i)
+            SWC_FILE=${OPTARG}
+            ;;
+        o)
+            OUTPUT_FOLDER=${OPTARG}
+            ;;
+        n)
+            INFLATIONS=${OPTARG}
+            ;;
+        m)
+            REFINEMENTS=${OPTARG}
+            ;;
+        l)
+            SEGMENT_LENGTH=${OPTARG}
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+## usage message
+usage() { 
+  echo -e "\t Usage: $(basename $0) -i <INPUT_FILE> -o <OUTPUT_FOLDER> -l <SEGMENT_LENGTH> [-n <NUMBER_OF_INFLATIONS> -m <NUMBER_OF_REFINEMENTS>]"
+  exit 1;
+}
+
+## check for empty file input pattern and empty folder name
+if [ -z "${SWC_FILE}" ]; then
+   echo "No input file provided by the user:" && echo && usage
+elif [ -z "${FOLDERNAME}" ]; then
+   echo "No output folder provided by the user:" && echo && usage
+elif [ -z "${SEGMENT_LENGTH}" ]; then
+   echo "No input segment length provided by the user:" && echo && usage
+fi
 
 ## create outout folder for meshes
 mkdir -p "${OUTPUT_FOLDER}"

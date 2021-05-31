@@ -25,7 +25,7 @@ SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var
 MODE=identity
 
 ## Parse CLI options
-while getopts ":i:o:n:m:l" o; do
+while getopts "i:o:n:m:l:" o; do
     case "${o}" in
         i)
             SWC_FILE=${OPTARG}
@@ -46,6 +46,8 @@ while getopts ":i:o:n:m:l" o; do
 done
 shift $((OPTIND-1))
 
+echo $SEGMENT_LENGTH
+
 ## usage message
 usage() { 
   echo -e "\t Usage: $(basename $0) -i <INPUT_FILE> -o <OUTPUT_FOLDER> -l <SEGMENT_LENGTH> [-n <NUMBER_OF_INFLATIONS> -m <NUMBER_OF_REFINEMENTS>]"
@@ -55,7 +57,7 @@ usage() {
 ## check for empty file input pattern and empty folder name
 if [ -z "${SWC_FILE}" ]; then
    echo "No input file provided by the user:" && echo && usage
-elif [ -z "${FOLDERNAME}" ]; then
+elif [ -z "${OUTPUT_FOLDER}" ]; then
    echo "No output folder provided by the user:" && echo && usage
 elif [ -z "${SEGMENT_LENGTH}" ]; then
    echo "No input segment length provided by the user:" && echo && usage

@@ -16,8 +16,8 @@
 INFLATIONS=1
 REFINEMENTS=1
 SEGMENT_LENGTH=6
-SWC_FILE=neuron.swc
-OUTPUT_FOLDER=example
+SWC_FILE=
+OUTPUT_FOLDER=
 BINARY=/home/stephan/Code/git/ug4/bin/ugshell 
 
 ## fixed mesh generation parameters (do not change)
@@ -45,8 +45,6 @@ while getopts "i:o:n:m:l:" o; do
     esac
 done
 shift $((OPTIND-1))
-
-echo $SEGMENT_LENGTH
 
 ## usage message
 usage() { 

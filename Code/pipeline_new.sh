@@ -16,9 +16,9 @@
 INFLATIONS=1
 REFINEMENTS=1
 SEGMENT_LENGTH=6
-SWC_FILE=
-OUTPUT_FOLDER=
-BINARY=/home/stephan/Code/git/ug4/bin/ugshell 
+SWC_FILE=single_branch
+OUTPUT_FOLDER=example
+BINARY=/home/stephan/Code/ug4/bin/ugshell 
 
 ## fixed mesh generation parameters (do not change)
 SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var 
@@ -175,7 +175,12 @@ fi
 
 done
 cat << EOF >> ${OUTPUT_FOLDER}/MetaInfo.json
-      ]
+      ],
+    "metadata" : {
+EOF
+   ./add_metainfo.sh "$SWC_FILE" >> ${OUTPUT_FOLDER}/MetaInfo.json
+cat << EOF >> ${OUTPUT_FOLDER}/MetaInfo.json
+   }
 }
 EOF
 

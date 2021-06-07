@@ -1,9 +1,14 @@
 #!/bin/bash
 
-## update meta data for old cells without metadata
-
+## update meta data for old cells which have been generated without  metadata
 OUTPUT_FOLDER=$1
 SWC_FILE_NAME=$2
+
+if [ -z "$1" -o -z "$2" ];  then
+   echo "Usage: $(basename $0) CELL_ARCHIVE_FOLDER_CONTAINING_VRN_ARCHIVE_FILE (folder with .vrn file) SWC_FILE_NAME (without .swc suffix)"
+   exit 1
+fi
+
 cd $OUTPUT_FOLDER
 unzip "${SWC_FILE_NAME}.vrn"
 cat MetaInfo.json

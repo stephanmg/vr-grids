@@ -1,7 +1,11 @@
 #!/bin/bash
 ## gets meta data for file name via REST API
 
-# e.g. 0-2a.CNG
+if [ -z "$1" ]; then
+   echo "Usage: $(basename $0) SWC_FILE_NAME (without .swc suffix)"
+   exit 1
+fi
+
 FILENAME=$1
 
 json=$(curl -s -X GET "http://neuromorpho.org/api/neuron/name/$FILENAME")

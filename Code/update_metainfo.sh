@@ -9,6 +9,8 @@ if [ -z "$1" -o -z "$2" ];  then
    exit 1
 fi
 
+mkdir $OUTPUT_FOLDER
+cp "${SWC_FILE_NAME}.vrn" $OUTPUT_FOLDER
 cd $OUTPUT_FOLDER
 unzip "${SWC_FILE_NAME}.vrn"
 cat MetaInfo.json
@@ -20,7 +22,6 @@ cp ../add_metainfo.awk .
 
 ./add_metainfo.sh $SWC_FILE_NAME >> MetaInfo.json
 
-echo "    }" >> MetaInfo.json
 echo "}" >> MetaInfo.json
 
 zip -9 -j -x "*_wo_attachments.ugx" -x "*vrn" -x "*sh" -x "*awk" -r ${SWC_FILE_NAME}.vrn MetaInfo.json *ugx

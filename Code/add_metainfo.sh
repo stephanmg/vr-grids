@@ -14,6 +14,7 @@ ARCHIVE=$(sed -e 's/[{}]/''/g' <<< "$json" | awk -v k="archive" -f add_metainfo.
 SPECIES=$(sed -e 's/[{}]/''/g' <<< "$json" | awk -v k="species" -f add_metainfo.awk | sed 's/"//g')
 STRAIN=$(sed -e 's/[{}]/''/g' <<< "$json" | awk -v k="strain" -f add_metainfo.awk | sed 's/"//g')
 
-echo "        \"ARCHIVE\": \"$ARCHIVE\","
-echo "        \"SPECIES\": \"$SPECIES\","
-echo "        \"STRAIN\": \"$STRAIN\""
+echo "     ],"
+echo "     \"ARCHIVE\": \"$ARCHIVE\","
+echo "     \"SPECIES\": \"$SPECIES\","
+echo "     \"STRAIN\": \"$STRAIN\""

@@ -14,15 +14,19 @@
 
 ## mesh generation default parameter values
 INFLATIONS=1
-REFINEMENTS=1
+REFINEMENTS=3
 SEGMENT_LENGTH=6
-SWC_FILE=single_branch
-OUTPUT_FOLDER=example
+#SWC_FILE=AR-1-20-04-A_mod_iteration_3
+SWC_FILE=AR-1-20-04-A
+SWC_FILE=228-12MG.CNG
+
+OUTPUT_FOLDER=example8
 BINARY=/home/stephan/Code/ug4/bin/ugshell 
 
 ## fixed mesh generation parameters (do not change)
 SCRIPT_3D_VR=test_import_swc_general_var_for_vr_var 
 MODE=identity
+#MODE=user
 
 ## Parse CLI options
 while getopts "i:o:n:m:l:" o; do
@@ -134,7 +138,7 @@ EOF
 
    # remove attachments for visualization in ProMesh
    for (( ref=0; ref < ${REFINEMENTS}; ref++)); do
-      sed '/.*vertex_attachment.*/d' "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_segLength=${SEGMENT_LENGTH}_3d_x${inflation}_ref_${ref}.ugx" > "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_segLength=${SEGLENGTH}_3d_x${inflation}_ref_${ref}_wo_attachments.ugx" 
+      sed '/.*vertex_attachment.*/d' "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_segLength=${SEGMENT_LENGTH}_3d_x${inflation}_ref_${ref}.ugx" > "${OUTPUT_FOLDER}/${SWC_FILE%*.swc}_segLength=${SEGMENT_LENGTH}_3d_x${inflation}_ref_${ref}_wo_attachments.ugx" 
    done
 done
 
